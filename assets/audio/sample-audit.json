@@ -1,0 +1,398 @@
+{
+  "metadata": {
+    "name": "FreePats Spanish classical guitar",
+    "creator": "Roberto / FreePats",
+    "version": "2019-06-18",
+    "license": "CC0-1.0",
+    "source": "https://freepats.zenvoid.org/Guitar/acoustic-guitar.html",
+    "format": "mono PCM16 LE 24 kHz",
+    "modifications": "Resampled to 24 kHz; maximum six-second one-shots; bounded peak normalization; final 50 ms fade. Approximate source tuning offsets measured by bounded autocorrelation and compensated by playback rate.",
+    "count": 48
+  },
+  "records": [
+    {
+      "midi": 31,
+      "name": "G1",
+      "sampleRate": 24000,
+      "frames": 144000,
+      "detuneCents": 10.86,
+      "sourceSha256": "ddf726f93811ee23babfbfc248f8188c292f9c62d056faca05a0392c621db5da"
+    },
+    {
+      "midi": 32,
+      "name": "G#1",
+      "sampleRate": 24000,
+      "frames": 144000,
+      "detuneCents": 3.7,
+      "sourceSha256": "844071e2067cb915f14c7844b820a708834678910fa4f02b839bdfdd7f3a8d77"
+    },
+    {
+      "midi": 33,
+      "name": "A1",
+      "sampleRate": 24000,
+      "frames": 144000,
+      "detuneCents": 3.62,
+      "sourceSha256": "c61f9a23baccce2dbe7c52f8390c9b5a7b8cb3e17e74f6695df5b88bea4ad4b0"
+    },
+    {
+      "midi": 34,
+      "name": "A#1",
+      "sampleRate": 24000,
+      "frames": 144000,
+      "detuneCents": 4.99,
+      "sourceSha256": "c6669c8d12f6e828f37df9ab6bbc4bd155c26a94383b564556ee2fef020e6d04"
+    },
+    {
+      "midi": 35,
+      "name": "B1",
+      "sampleRate": 24000,
+      "frames": 144000,
+      "detuneCents": 2.4,
+      "sourceSha256": "e076472f52a4da0b1dbb672649c3a3f9919174e14f31a359aebfd559d4195c17"
+    },
+    {
+      "midi": 36,
+      "name": "C2",
+      "sampleRate": 24000,
+      "frames": 144000,
+      "detuneCents": 5.72,
+      "sourceSha256": "ff911e7712198dcaf3677f19ec6c11e8522b9dfe42e5e9151c9ff32c4f413541"
+    },
+    {
+      "midi": 37,
+      "name": "C#2",
+      "sampleRate": 24000,
+      "frames": 144000,
+      "detuneCents": -1.01,
+      "sourceSha256": "978cd852a9e3e4ae658fed42f77ca7c5b9225e8efadd5d1b9ce4b18bbf7449b5"
+    },
+    {
+      "midi": 38,
+      "name": "D2",
+      "sampleRate": 24000,
+      "frames": 144000,
+      "detuneCents": -0.74,
+      "sourceSha256": "6cb6ebcb818ccb5d6e72467d05c9fe82f4bd89cdfe21280e3ae65d224b52788e"
+    },
+    {
+      "midi": 39,
+      "name": "D#2",
+      "sampleRate": 24000,
+      "frames": 144000,
+      "detuneCents": 1.65,
+      "sourceSha256": "4ed852bdaa965ef7eaf319fcc656f754f090043e9004ea47dd2fd4180f2a8f69"
+    },
+    {
+      "midi": 40,
+      "name": "E2",
+      "sampleRate": 24000,
+      "frames": 119964,
+      "detuneCents": 1.59,
+      "sourceSha256": "22a7c914051a82b2a461f998bcefccb9868e67887af036270664c370913732a0"
+    },
+    {
+      "midi": 41,
+      "name": "F2",
+      "sampleRate": 24000,
+      "frames": 128412,
+      "detuneCents": 9.14,
+      "sourceSha256": "81131f7e292a74893641777f5fe754873466e8e44a030dc57fd631c749ce8c2c"
+    },
+    {
+      "midi": 43,
+      "name": "G2",
+      "sampleRate": 24000,
+      "frames": 125597,
+      "detuneCents": 10.61,
+      "sourceSha256": "06114b39af585030ba24c90a0cf213973e88c823fda2fc8ba976ddb74cf6aacc"
+    },
+    {
+      "midi": 45,
+      "name": "A2",
+      "sampleRate": 24000,
+      "frames": 135088,
+      "detuneCents": 4.04,
+      "sourceSha256": "1ed5725737f894444461e8778340c223e5ff1e0578ca08cd823582949d628db7"
+    },
+    {
+      "midi": 47,
+      "name": "B2",
+      "sampleRate": 24000,
+      "frames": 92816,
+      "detuneCents": 8.46,
+      "sourceSha256": "aa5fa8000f0714a6e201617551add81f771af07eaf2340a3c68d12bbd388ed86"
+    },
+    {
+      "midi": 48,
+      "name": "C3",
+      "sampleRate": 24000,
+      "frames": 103099,
+      "detuneCents": 3.2,
+      "sourceSha256": "d7b5d1f1bf9a1852859376a4e2ed462d5339b9128f8c682a3eed7661dea41c65"
+    },
+    {
+      "midi": 50,
+      "name": "D3",
+      "sampleRate": 24000,
+      "frames": 126862,
+      "detuneCents": 7.47,
+      "sourceSha256": "ad05903b63e490bacbd8f90d2ee4c3e763bf5675840ceef7374616c51421139a"
+    },
+    {
+      "midi": 52,
+      "name": "E3",
+      "sampleRate": 24000,
+      "frames": 114004,
+      "detuneCents": 6.21,
+      "sourceSha256": "3b84c5f8d76f61b242e812c86bd0a876b065a8ff576a0769801bb2f690bff90b"
+    },
+    {
+      "midi": 53,
+      "name": "F3",
+      "sampleRate": 24000,
+      "frames": 100726,
+      "detuneCents": 5.91,
+      "sourceSha256": "e5fa4e9722a5042aa89b60bcdbb0756aaf8396ffdb18589d3a4368400cc09ee7"
+    },
+    {
+      "midi": 54,
+      "name": "F#3",
+      "sampleRate": 24000,
+      "frames": 93902,
+      "detuneCents": 3.39,
+      "sourceSha256": "c89e24f62497a67a5d8223a1b1af7eea20b47639c29a4b5a3536d5d88de89cf8"
+    },
+    {
+      "midi": 55,
+      "name": "G3",
+      "sampleRate": 24000,
+      "frames": 111871,
+      "detuneCents": 2.37,
+      "sourceSha256": "c2d1a00e90a4ce14756a45836be5a9f4bb379c4ac72f6a124f4227426e9e1541"
+    },
+    {
+      "midi": 56,
+      "name": "G#3",
+      "sampleRate": 24000,
+      "frames": 80136,
+      "detuneCents": 6.72,
+      "sourceSha256": "b26c8dcd839bf926d131a7276f35947794a6e4c28b469bbaa0fdaedc259fab69"
+    },
+    {
+      "midi": 57,
+      "name": "A3",
+      "sampleRate": 24000,
+      "frames": 60609,
+      "detuneCents": 11.65,
+      "sourceSha256": "a44a5f172bbd11dec66d4ac57b67ddbdecc0328883a9114fd0b676868f09d671"
+    },
+    {
+      "midi": 58,
+      "name": "A#3",
+      "sampleRate": 24000,
+      "frames": 59752,
+      "detuneCents": 11.81,
+      "sourceSha256": "64b0721878e1affa39f7c03382d1a95caa14316fa691dc499968d4a8d34ead78"
+    },
+    {
+      "midi": 59,
+      "name": "B3",
+      "sampleRate": 24000,
+      "frames": 54493,
+      "detuneCents": 15.14,
+      "sourceSha256": "7e2c073fa60c7732024b07979286a7956ba7bbfd12c9a07ee032f3014073bdbb"
+    },
+    {
+      "midi": 60,
+      "name": "C4",
+      "sampleRate": 24000,
+      "frames": 58028,
+      "detuneCents": 9.01,
+      "sourceSha256": "b37fb9279079aa3334cd217bb4e0eba8e2618219c9cd646c793fab685a4bed46"
+    },
+    {
+      "midi": 61,
+      "name": "C#4",
+      "sampleRate": 24000,
+      "frames": 69354,
+      "detuneCents": 17.78,
+      "sourceSha256": "b2b3dfdd7a2c883a97653be084e3237cacc716267b7c73eb18e2b8daa9b8a811"
+    },
+    {
+      "midi": 62,
+      "name": "D4",
+      "sampleRate": 24000,
+      "frames": 73383,
+      "detuneCents": 8.44,
+      "sourceSha256": "7301c859f712429a36baf56c37bc7f7808f2a913ae22e033c45938aede13c5f0"
+    },
+    {
+      "midi": 63,
+      "name": "D#4",
+      "sampleRate": 24000,
+      "frames": 75018,
+      "detuneCents": 9.45,
+      "sourceSha256": "251b7e827972bf3406e204ae158d1f7db8b9ea8ba503373438234bd0d02e4c80"
+    },
+    {
+      "midi": 64,
+      "name": "E4",
+      "sampleRate": 24000,
+      "frames": 89985,
+      "detuneCents": 0.46,
+      "sourceSha256": "b58da5a2a380a2facf051c71b8178711a676d6b8b1021e0ffc3691841fe34e3a"
+    },
+    {
+      "midi": 65,
+      "name": "F4",
+      "sampleRate": 24000,
+      "frames": 74640,
+      "detuneCents": 3.46,
+      "sourceSha256": "ef6f34ad82b29469a535b38573ff478159cdf0abcf5ad354173304b3e014daad"
+    },
+    {
+      "midi": 66,
+      "name": "F#4",
+      "sampleRate": 24000,
+      "frames": 75462,
+      "detuneCents": 3.84,
+      "sourceSha256": "5809556edc5a2de5bd0fbd5ec5985ea21f47805d1328a88ec3bb53104badca72"
+    },
+    {
+      "midi": 67,
+      "name": "G4",
+      "sampleRate": 24000,
+      "frames": 57842,
+      "detuneCents": 3.48,
+      "sourceSha256": "b1d36a1cc9863eed45bef4b7027c9b651ba8284dd7b325cba998fdb17638d02b"
+    },
+    {
+      "midi": 69,
+      "name": "A4",
+      "sampleRate": 24000,
+      "frames": 98770,
+      "detuneCents": 4.41,
+      "sourceSha256": "4347049a573a20e970c05913d7fce065adfd5365eaa651156004550e8ef5d175"
+    },
+    {
+      "midi": 70,
+      "name": "A#4",
+      "sampleRate": 24000,
+      "frames": 56878,
+      "detuneCents": 0.9,
+      "sourceSha256": "743ee18e7f01b14e270698681ae1837506a7a1ef3d0f160c30dacadcf5786d60"
+    },
+    {
+      "midi": 71,
+      "name": "B4",
+      "sampleRate": 24000,
+      "frames": 45611,
+      "detuneCents": 14.74,
+      "sourceSha256": "71c6336d7fee2f24f00b4b9b9bbe6de2c77daeb6ff5d1d87813aa93e0973a873"
+    },
+    {
+      "midi": 72,
+      "name": "C5",
+      "sampleRate": 24000,
+      "frames": 37511,
+      "detuneCents": 11.07,
+      "sourceSha256": "d3b547c93fa6711647eaf921ec06f05171103f6ef04af3db2d52289a37e36764"
+    },
+    {
+      "midi": 73,
+      "name": "C#5",
+      "sampleRate": 24000,
+      "frames": 42105,
+      "detuneCents": 9.41,
+      "sourceSha256": "586b35854d1a75ce32c8dd0faae5affd4b7d8e22b32276188b3c46ce3db1feab"
+    },
+    {
+      "midi": 74,
+      "name": "D5",
+      "sampleRate": 24000,
+      "frames": 30300,
+      "detuneCents": 11.43,
+      "sourceSha256": "1380dff1a61f6364c8971a39b11e734a98c4358492307febaa9341fb114bfb28"
+    },
+    {
+      "midi": 75,
+      "name": "D#5",
+      "sampleRate": 24000,
+      "frames": 30167,
+      "detuneCents": 4.58,
+      "sourceSha256": "012aef2b8ad3999aa472d57482047f90aea09ff8fb82cf1d4773a58e94152b6a"
+    },
+    {
+      "midi": 76,
+      "name": "E5",
+      "sampleRate": 24000,
+      "frames": 32142,
+      "detuneCents": 6.31,
+      "sourceSha256": "1eaf4b6548d96781caf3b26a3a1a569ca097d3bbdfbc8e6fc58ffe15f3febd56"
+    },
+    {
+      "midi": 77,
+      "name": "F5",
+      "sampleRate": 24000,
+      "frames": 37100,
+      "detuneCents": -0.76,
+      "sourceSha256": "84f1e8db070649fbc2abcd525612b5bb49c8371ba196a421a70efec7a5518e61"
+    },
+    {
+      "midi": 78,
+      "name": "F#5",
+      "sampleRate": 24000,
+      "frames": 33202,
+      "detuneCents": 3.18,
+      "sourceSha256": "3da6b8bc2bd4d56253937de6c68f8a4e985563b95e23f82a9b7efec69374131a"
+    },
+    {
+      "midi": 79,
+      "name": "G5",
+      "sampleRate": 24000,
+      "frames": 34185,
+      "detuneCents": -0.57,
+      "sourceSha256": "5612e7b0f421da28e673e7a02169777418dccb805d494e83ffda4dbbd3504fbc"
+    },
+    {
+      "midi": 80,
+      "name": "G#5",
+      "sampleRate": 24000,
+      "frames": 22790,
+      "detuneCents": -1.38,
+      "sourceSha256": "08704c9c1bdaecdb16d1b7b33586508d96f7ed523e0c28247af566bdaeb4fd04"
+    },
+    {
+      "midi": 81,
+      "name": "A5",
+      "sampleRate": 24000,
+      "frames": 39145,
+      "detuneCents": 9.19,
+      "sourceSha256": "39d1cc6d041796e2bdb57f973b9f6bf80c6b19bd296ae99a6202065896677190"
+    },
+    {
+      "midi": 82,
+      "name": "A#5",
+      "sampleRate": 24000,
+      "frames": 31526,
+      "detuneCents": 4.54,
+      "sourceSha256": "88ac184123e4fd187ccceda8e66f8137005313802cc09f594a7ecbfda7dc465d"
+    },
+    {
+      "midi": 83,
+      "name": "B5",
+      "sampleRate": 24000,
+      "frames": 23542,
+      "detuneCents": 3.93,
+      "sourceSha256": "9ef813bc3570c8042f06598df755ffa8ee049206e3dd14588c27b05557a49748"
+    },
+    {
+      "midi": 84,
+      "name": "C6",
+      "sampleRate": 24000,
+      "frames": 21478,
+      "detuneCents": 6.74,
+      "sourceSha256": "a297c63a94eb823a2f7515b20c36c1760990cb33c699d3fe2d0b3b7da0135007"
+    }
+  ]
+}

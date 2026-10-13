@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en" data-theme="graphite" data-font="manrope">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#080a10">
+  <title>Guitar Brain · Motion</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="motion.css">
+  <script defer src="scale-catalog.js"></script>
+  <script defer src="makam-catalog.js"></script>
+  <script defer src="makam-tuning.js"></script>
+  <script defer src="i18n.js"></script>
+  <script defer src="theory.js"></script>
+  <script defer src="chord-pool.js"></script>
+  <script defer src="voicing-catalog.js"></script>
+  <script defer src="guitar.js"></script>
+  <script defer src="voicing-engine.js"></script>
+  <script defer src="chord-diagram.js"></script>
+  <script defer src="guitar-samples.js"></script>
+  <script defer src="audio.js"></script>
+  <script defer src="harmony-engine.js"></script>
+  <script defer src="harmony-map.js"></script>
+  <script defer src="export.js"></script>
+  <script defer src="scene.js"></script>
+  <script defer src="pwa.js"></script>
+  <script defer src="motion-engine.js"></script>
+  <script defer src="motion-workspace.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <main class="app-shell" id="appShell">
+    <div class="workbench">
+      <section class="scene-column" id="sceneColumn" aria-label="Kalıcı gitar sahnesi">
+        <button id="toggleFretboard" class="fretboard-toggle" aria-expanded="true" aria-controls="sceneStage sceneBottom">Klavyeyi gizle <span aria-hidden="true">⌃</span></button>
+        <div class="scene-heading">
+          <div class="scene-heading-copy"><span class="eyebrow" id="sceneEyebrow">KLAVYE</span><h1 id="sceneTitle">Notaları seç</h1></div>
+          <div class="scene-tools">
+            <div class="range-control" aria-label="Perde aralığı">
+              <button class="scene-range active" data-range="0" aria-pressed="true">0–12</button>
+              <button class="scene-range" data-range="12" aria-pressed="false">12–24</button>
+            </div>
+            <button class="scene-tool" id="clearNotes" title="Seçimleri temizle" aria-label="Seçimleri temizle">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 14 8-9 8 7-7 8H9zM8 20h12M8 10l8 7"/></svg>
+            </button>
+            <button class="scene-tool" id="helpButton" aria-label="Klavye yardımı">?</button>
+          </div>
+        </div>
+        <div class="scene-stage" id="sceneStage">
+          <div class="scene-halo" aria-hidden="true"></div>
+          <div class="scene-floor" aria-hidden="true"></div>
+          <canvas id="guitarCanvas" class="guitar-canvas" aria-hidden="true"></canvas>
+          <svg id="guitarScene" class="guitar-scene" viewBox="0 0 1000 540" role="group" aria-label="Tıklanabilir 3D gitar klavyesi"></svg>
+          <div id="motionHud" class="motion-hud" hidden></div>
+          <div class="scene-orbit orbit-one" aria-hidden="true"></div>
+          <div class="scene-orbit orbit-two" aria-hidden="true"></div>
+          <div class="scene-camera" aria-label="Kamera açısı">
+            <button data-camera="perspective" aria-pressed="false">3D</button>
+            <button data-camera="top" class="active" aria-pressed="true">Üstten</button>
+            <button data-camera="close" aria-pressed="false">Yakın</button>
+            <button data-camera="reset" class="camera-reset" title="Kamerayı sıfırla" aria-label="Kamerayı sıfırla">↺</button>
+            <button data-zoom="out" title="Uzaklaştır" aria-label="Uzaklaştır">−</button>
+            <input id="cameraZoom" class="camera-zoom" type="range" min="55" max="250" value="100" step="5" aria-label="Yakınlaştırma">
+            <button data-zoom="in" title="Yakınlaştır" aria-label="Yakınlaştır">+</button>
+          </div>
+          <div class="scene-hint-mobile">Dokun · nota seç</div>
+          <div class="scene-hint">Sürükle <span>·</span> çevir <span> / </span> Tıkla <span>·</span> nota seç</div>
+        </div>
+        <div class="scene-bottom" id="sceneBottom">
+          <div class="scene-legend" id="sceneLegend">
+            <span><i class="legend-dot selected"></i>Seçili</span><span><i class="legend-dot chord"></i>Akor</span><span><i class="legend-dot scale"></i>Gam</span><span><i class="legend-dot root"></i>Kök</span>
+          </div>
+          <div class="scene-footer"><span id="tuningLabel">E A D G B E</span><span id="capoLabel">CAPO YOK</span><span id="selectedCount">0 NOTA</span></div>
+        </div>
+      </section>
+      <aside class="workspace-panel" id="workspacePanel" aria-label="Çalışma araçları">
+        <nav class="mode-nav" id="modeNav" aria-label="Çalışma bölümleri">
+          <button class="mode-tab motion-tab" data-mode="motion" aria-pressed="false"><i class="motion-icon" aria-hidden="true">⌁</i> Motion</button>
+          <button class="mode-tab active" data-mode="explore" aria-pressed="true">Notalar</button>
+          <button class="mode-tab" data-mode="chord" aria-pressed="false">Akor</button>
+          <button class="mode-tab" data-mode="scale" aria-pressed="false">Gam</button>
+          <button class="mode-tab" data-mode="harmony" aria-pressed="false">Armoni</button>
+          <button class="mode-tab settings-tab" data-mode="project" aria-pressed="false" aria-label="Ayarlar">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 3-.5 2-2 1L4.5 5 3 8l1.5 1.5v3L3 14l1.5 3L7 16l2 1 .5 2h4l.5-2 2-1 2.5 1 1.5-3-1.5-1.5v-3L20 8l-1.5-3L16 6l-2-1-.5-2z"/><circle cx="11.5" cy="11" r="3"/></svg>
+          </button>
+        </nav>
+        <div id="panelContent" class="panel-content" tabindex="0"></div>
+        <div class="playback-dock" id="playbackDock">
+          <button class="play-main" id="playMain"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 11 7-11 7z"/></svg><span id="playMainText">Seçili notaları çal</span></button>
+          <button class="play-arpeggio" id="playArpeggio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18v-3h4v-4h4V7h4V3h4"/></svg>Arpej</button>
+          <button class="stop-playback" id="stopPlayback" aria-label="Çalmayı durdur"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1"/></svg></button>
+        </div>
+      </aside>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </main>
+  <dialog id="helpDialog" class="help-dialog">
+    <form method="dialog"><button class="dialog-close" aria-label="Kapat">×</button></form>
+    <h2>Klavye kontrolü</h2>
+    <p>Perdeye tıkla: nota seç. Sürükle: kamerayı çevir. 3D, Üstten ve Yakın düğmeleri görünümü değiştirir.</p>
+    <p>Mobilde kamera üstten ve sabittir.</p>
+    <p>Tab ile klavyeye geç. Ok tuşlarıyla gezin; Enter veya boşlukla nota seç.</p>
+    <p>Akor diyagramlarında soldan sağa kalın telden ince tele gidilir. × susturulmuş, ○ açık teldir. İşaretlerin içi nota veya dereceyi gösterir.</p>
+  </dialog>
+</body>
+</html>
