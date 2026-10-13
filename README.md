@@ -4,6 +4,8 @@ A new guitar workspace for seeing and hearing harmony move across a playable fre
 
 [Open Motion](https://knookan.github.io/guitar-brain-motion/) · [Original studio](https://knookan.github.io/guitar-brain-koma/)
 
+![Guitar Brain Motion showing G7 to Cmaj7 voice routes](assets/previews/motion-studio.jpg)
+
 - A living fretboard shows roots, guide tones, fifths, extensions and explicit scale-context tensions.
 - Build a sequence of 2–8 chords and compare three playable guitar voice routes.
 - Inspect exact held pitches, interval changes, entries/exits and physical grip movement.
@@ -13,6 +15,12 @@ A new guitar workspace for seeing and hearing harmony move across a playable fre
 - English and Turkish, mobile fixed cameras, collapsible fretboard and installable PWA.
 
 Motion is an independent version. Its source, storage and offline cache do not replace the original studio.
+
+## Try the first change
+
+Start with **G7 → Cmaj7**. Compare the three route cards, then choose **Play route** or **Arpeggio**. B stays at the same pitch while its role changes from the third of G7 to the seventh of Cmaj7; D moves to C and F resolves to E. Click any voice pair to hear that movement in isolation.
+
+For the complete animation, choose **Settings → Animation → Full motion**. The default follows your system's reduced-motion preference. Mobile cameras remain fixed for reliable fret selection.
 
 ## Run locally
 
