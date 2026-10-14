@@ -4,7 +4,7 @@ A new guitar workspace for seeing and hearing harmony move across a playable fre
 
 [Open Motion](https://knookan.github.io/guitar-brain-motion/) · [Original studio](https://knookan.github.io/guitar-brain-koma/)
 
-![Guitar Brain Motion with 24 routes and an exact first voicing](assets/previews/motion-12-studio.png)
+![Guitar Brain Motion with 24 routes and an exact first voicing](assets/previews/motion-12-studio.jpg)
 
 - A living fretboard shows roots, guide tones, fifths, extensions and explicit scale-context tensions.
 - Build a sequence of 2–8 chords and compare 6, 12 or 24 playable guitar voice routes.
@@ -21,7 +21,7 @@ Motion is an independent version. Its source, storage and offline cache do not r
 
 ## Orbit update · 1.2
 
-![Orbit showing G7 and its ranked chord connections](assets/previews/orbit-studio.png)
+![Orbit showing G7 and its ranked chord connections](assets/previews/orbit-studio.jpg)
 
 Harmony opens with diatonic degrees in a spatial scene. Select a degree to reveal
 its next-chord alternatives; stronger recommendations appear nearer the centre.
