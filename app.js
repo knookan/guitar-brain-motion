@@ -201,7 +201,7 @@
     if(state.mode==='harmony')for(const [selector,key] of [['.harmony-picker','_harmonyPickerOpen'],['.harmony-layer-controls','_harmonyLayersOpen']])if(state[key])host.querySelector(selector)?.setAttribute('open','');
     host.scrollTop=keepScroll?Math.min(oldScroll,host.scrollHeight):0;bindPanel();updatePlayLabels();
   }
-  function syncNav(){document.documentElement?.setAttribute?.("data-workspace",state.mode);document.querySelectorAll(".mode-tab").forEach(tab=>{const active=tab.dataset.mode===state.mode;tab.classList.toggle("active",active);tab.setAttribute("aria-pressed",String(active));});}
+  function syncNav(){document.documentElement?.setAttribute?.("data-workspace",state.mode);document.querySelectorAll(".mode-tab").forEach(tab=>{const active=tab.dataset.mode===state.mode;tab.classList.toggle("active",active);tab.setAttribute("aria-pressed",String(active));});root.GBWorkspaceLayout?.sync();}
   function panelHeader(title){return '<h2 class="panel-title">'+escapeHtml(title)+'</h2>';}
   function sectionLabel(title,extra=""){return '<div class="section-label"><span>'+title+'</span>'+extra+'</div>';}
   function button(action,label,attrs="",className="secondary-button"){return '<button class="'+className+'" data-action="'+action+'" '+attrs+'>'+label+'</button>';}
@@ -528,6 +528,7 @@
   function updateFretboardVisibility(){
     const shell=$('#appShell'),button=$('#toggleFretboard');shell?.classList.toggle('fretboard-collapsed',state.fretboardCollapsed);
     if(button){button.setAttribute('aria-expanded',String(!state.fretboardCollapsed));button.innerHTML=escapeHtml(tr(state.fretboardCollapsed?'Klavyeyi göster':'Klavyeyi gizle'))+' <span aria-hidden="true">'+(state.fretboardCollapsed?'⌄':'⌃')+'</span>';}
+    root.GBWorkspaceLayout?.sync();
   }
   function bindStatic(){
     $('#toggleFretboard')?.addEventListener('click',()=>{state.fretboardCollapsed=!state.fretboardCollapsed;updateFretboardVisibility();saveLocal();scene?.update(sceneState());});

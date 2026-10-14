@@ -1,0 +1,182 @@
+/* The sole owner of outer geometry. Inner desks respond to their panel width. */
+#appShell{grid-template-rows:auto minmax(0,1fr);padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+.studio-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;max-width:2200px;margin-inline:auto;padding:10px 20px 8px;min-height:56px;z-index:25}
+.studio-navigation{min-width:0}
+.studio-toolbar .mode-nav{position:static;left:auto;right:auto;top:auto;transform:none;width:auto;max-width:none;margin:0;box-shadow:none;height:38px;border-radius:12px;padding:3px;background:#ffffff03;border-color:var(--line);backdrop-filter:none;gap:2px}
+.studio-toolbar .mode-tab{height:30px;font-size:12px;padding:0 16px;flex:none;border-radius:8px;align-self:center}
+.studio-toolbar .mode-tab.settings-tab{width:34px;padding:0;flex:none}
+.layout-controls{display:flex;align-items:center;gap:6px;flex:none}
+.layout-focus{display:flex;border:1px solid var(--line);background:#ffffff02;padding:3px;gap:2px;border-radius:11px}
+.layout-controls button{border:0;color:var(--muted);background:transparent;font-size:11px;min-height:30px;padding:0 12px;border-radius:7px;white-space:nowrap}
+.layout-controls button[aria-pressed='true']{color:var(--text);background:#ffffff0b}
+.layout-controls button:hover{color:var(--text);background:#ffffff09}
+.layout-controls .layout-arrangement,.layout-controls .layout-reset{display:grid;place-items:center;border:1px solid var(--line);width:34px;height:34px;padding:0;border-radius:10px}
+.layout-controls .layout-reset{font-size:19px}
+.layout-controls button:disabled{opacity:.28;cursor:default}
+.layout-controls svg{width:17px;height:17px}
+#appShell .workbench{padding:0 20px 14px;gap:0;max-width:2200px;grid-template-columns:minmax(0,1fr);grid-template-rows:var(--guitar-size,44%) 12px minmax(0,1fr);margin-inline:auto;width:100%;overflow:hidden}
+#appShell .scene-column{grid-template-rows:48px minmax(0,1fr) 26px;padding:0;overflow:hidden;position:relative;border-radius:16px;background:radial-gradient(ellipse at 50% 50%,#55516b0c,transparent 70%)}
+#appShell .scene-heading{padding:8px 14px 0;gap:12px;align-items:center}
+#appShell .scene-heading-copy{display:flex;align-items:baseline;gap:10px;min-width:0}
+#appShell .scene-heading h1{font-size:clamp(20px,2vw,28px);margin:0;line-height:1.2;max-width:none;letter-spacing:-.045em}
+#appShell .scene-heading .eyebrow{display:none}
+#appShell .scene-tools{margin:0;padding-right:37px;gap:6px}
+#appShell .scene-range{min-width:45px;height:27px;font-size:11px;padding-inline:8px}
+#appShell .scene-tool{width:31px;height:31px}
+#appShell .scene-stage{min-width:0;min-height:0;overflow:hidden}
+#appShell .scene-bottom{padding:0 14px;gap:12px;display:flex;flex-direction:row;align-items:center;justify-content:space-between}
+#appShell .scene-legend{gap:10px;font-size:9px}
+#appShell .scene-footer{font-size:9px;gap:8px}
+#appShell .scene-camera{position:static;left:auto;bottom:auto;transform:none;max-width:none;white-space:nowrap;flex:none;margin:0;height:36px;border-radius:11px;background:#ffffff03;backdrop-filter:none}
+#appShell .scene-camera button{padding:0 8px}
+#appShell .motion-hud{right:16px;top:0;gap:12px}
+#appShell .motion-stage-metrics{display:none}
+#appShell .tone-lens{gap:9px}
+#appShell .lens-orbit{width:30px;height:30px}
+#appShell .tone-lens strong{font-size:18px}
+#appShell .tone-lens small,#appShell .tone-lens>div>span{display:none}
+#appShell .fretboard-toggle{display:grid!important;place-items:center;position:absolute;top:9px;left:auto!important;right:12px!important;width:31px;height:31px;padding:0;border:1px solid var(--line);background:#ffffff03;border-radius:9px;font-size:0;z-index:10;color:var(--muted)}
+#appShell .fretboard-toggle span{font-size:16px}
+.workspace-divider{display:flex;align-items:center;justify-content:center;min-height:0;min-width:0;touch-action:none;cursor:row-resize;position:relative;outline-offset:-2px}
+.workspace-divider>span{width:56px;height:3px;border-radius:8px;background:var(--line);transition:background .15s,width .15s}
+.workspace-divider:hover>span,.workspace-divider:focus-visible>span,.layout-resizing .workspace-divider>span{background:var(--cyan);width:80px}
+.workspace-divider[hidden]{display:none}
+.layout-resizing{user-select:none}
+.layout-resizing .scene-stage,.layout-resizing .workspace-panel{pointer-events:none}
+#appShell .workspace-panel{grid-template-rows:minmax(0,1fr) 52px;overflow:hidden;min-height:0;min-width:0;container:workspace / inline-size;border-radius:16px;border:1px solid var(--line);box-shadow:0 12px 44px #0002}
+#appShell .panel-content{width:100%;max-width:none!important;margin:0;min-width:0;min-height:0;overflow:auto;padding:20px 22px;scrollbar-gutter:stable;border-radius:0;scroll-behavior:auto;overflow-anchor:none}
+#appShell .playback-dock{padding:8px 16px;min-height:0;border-radius:0;flex-wrap:nowrap}
+#appShell .panel-title{font-size:22px;margin-bottom:16px}
+html:not([data-workspace='project']) #panelContent>.panel-title{display:none}
+#appShell .panel-section{margin-block:20px}
+#appShell .motion-console{max-width:1500px;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);grid-template-areas:'sequence first' 'routes inspector';gap:24px 28px}
+#appShell .motion-sequence{display:block;border:0;padding:0}
+#appShell .motion-sequence>.motion-section-title{margin-bottom:12px}
+#appShell .motion-options{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);margin-top:14px;gap:10px}
+#appShell .motion-presets{margin:10px 0 14px}
+#appShell .motion-swap{padding:5px 0}
+#appShell .motion-toggle-row{margin-top:10px}
+#appShell .motion-first-grip,#appShell .motion-inspector{padding-left:24px;border-left:1px solid var(--line);display:block;grid-column:auto}
+#appShell .motion-routes,#appShell .motion-inspector{border-top:1px solid var(--line);padding-top:20px}
+#appShell .motion-routes{border-right:0;padding-right:0}
+#appShell .motion-inspector .motion-grip{grid-column:auto;grid-row:auto;border-top:1px solid var(--line);padding-top:10px}
+#appShell .route-list{grid-template-columns:repeat(2,minmax(0,1fr));max-height:none;overflow:visible;padding:0}
+#appShell .first-grip-gallery{max-height:none;overflow:visible;padding:0;grid-template-columns:repeat(auto-fill,minmax(105px,1fr))}
+#appShell .orbit-destinations{max-height:none;overflow:visible;padding:0;grid-template-columns:repeat(3,minmax(0,1fr))}
+#appShell .harmony-atlas .atlas-desk{grid-template-columns:minmax(0,1fr) 240px;gap:26px}
+#appShell .harmony-atlas .atlas-inspector{padding-left:20px;border-left:1px solid var(--line);border-top:0}
+#appShell .harmony-atlas .atlas-selected{display:block}
+#appShell .harmony-atlas .atlas-selected>small,#appShell .harmony-atlas .atlas-selected>strong,#appShell .harmony-atlas .atlas-selected>span{display:block}
+#appShell .harmony-atlas .atlas-selected .chord-diagram{width:160px;max-height:180px}
+#appShell .sequence-pick{min-height:100px}
+#appShell .sequence-pick strong{font-size:27px}
+#appShell .voice-pair{min-height:34px}
+#appShell .chord-focus{max-width:none}
+#appShell .degree-grid,#appShell .voicing-grid{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+#appShell[data-layout='side'] .workbench{grid-template-columns:var(--guitar-size,55%) 12px minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+#appShell[data-layout='side'] .workspace-divider{cursor:col-resize}
+#appShell[data-layout='side'] .workspace-divider>span{width:3px;height:56px}
+#appShell[data-layout='side'] .workspace-divider:hover>span,#appShell[data-layout='side'] .workspace-divider:focus-visible>span{width:3px;height:80px}
+#appShell.fretboard-collapsed .workbench{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:36px minmax(0,1fr)!important;gap:8px}
+#appShell.fretboard-collapsed .scene-column{grid-template-rows:36px!important;background:#ffffff02;border:1px solid var(--line);border-radius:10px}
+#appShell.fretboard-collapsed .scene-heading,#appShell.fretboard-collapsed .scene-stage,#appShell.fretboard-collapsed .scene-bottom{display:none}
+#appShell.fretboard-collapsed .fretboard-toggle{position:static;display:flex!important;align-items:center;justify-content:space-between;width:100%;height:34px;font-size:11px;padding:0 14px;border:0;border-radius:0;color:var(--cyan)}
+@container workspace (max-width:900px){
+  .motion-console{grid-template-columns:minmax(0,1fr)!important;grid-template-areas:'sequence' 'first' 'routes' 'inspector'!important;gap:20px!important}
+  .motion-first-grip,.motion-inspector{padding-left:0!important;border-left:0!important;border-top:1px solid var(--line);padding-top:18px}
+  .harmony-atlas .atlas-desk{grid-template-columns:minmax(0,1fr)!important;gap:16px!important}
+  .harmony-atlas .atlas-inspector{padding:14px 0 0!important;border-left:0!important;border-top:1px solid var(--line)!important}
+  .harmony-atlas .atlas-selected{display:grid!important;grid-template-columns:minmax(0,1fr) 130px;gap:7px 12px}
+  .harmony-atlas .atlas-selected>small,.harmony-atlas .atlas-selected>strong,.harmony-atlas .atlas-selected>span,.harmony-atlas .atlas-notes{grid-column:1}
+  .harmony-atlas .atlas-selected .chord-diagram{grid-column:2;grid-row:1/6;width:125px!important;max-height:145px!important;justify-self:end;margin:0}
+  .harmony-atlas .atlas-selected>strong{font-size:32px!important}
+  .atlas-hear,.atlas-to-motion{grid-column:1/-1}
+  .atlas-tensions{display:none}
+  .orbit-destinations{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .atlas-toolbar{flex-wrap:wrap;gap:10px}
+  .first-grip-preview{gap:16px}
+}
+@container workspace (max-width:500px){
+  .route-list,.orbit-destinations{grid-template-columns:minmax(0,1fr)!important}
+  .draft-strings{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .atlas-toolbar{display:grid;grid-template-columns:minmax(0,1fr)}
+  .atlas-lenses{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:100%}
+  .atlas-lenses button{padding-inline:5px;font-size:11px}
+  .atlas-toolbar summary{font-size:12px}
+  .harmony-atlas .atlas-selected{grid-template-columns:minmax(0,1fr) 110px}
+  .harmony-atlas .atlas-selected .chord-diagram{width:105px!important}
+  .degree-grid,.voicing-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@container workspace (min-width:1250px){
+  .motion-sequence{display:grid!important;grid-template-columns:minmax(0,1.2fr) minmax(190px,1fr);grid-template-areas:'title title' 'cards options' 'swap toggles' 'presets presets';gap:10px 15px}
+  .motion-sequence>.motion-section-title{grid-area:title;margin:0!important}
+  .motion-options{grid-area:options;grid-template-columns:1fr!important;margin:0!important;gap:8px!important}
+  .motion-toggle-row{grid-area:toggles;margin:0!important}
+  .motion-presets{grid-area:presets;margin:0!important}
+  .route-list{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@container workspace (min-width:1100px){
+  #panelContent:has(.match-card){display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,320px);gap:16px 24px;align-content:start;align-items:start}
+  #panelContent:has(.match-card)>*{grid-column:1/-1;min-width:0}
+  #panelContent:has(.match-card)>.panel-section{margin:0}
+  #panelContent:has(.match-card)>.panel-section:has(.match-card){grid-column:1;grid-row:2}
+  #panelContent:has(.match-card)>.panel-section:has(.result-list){grid-column:2;grid-row:2;border-left:1px solid var(--line);padding-left:24px}
+}
+@media(max-width:1050px){
+  .studio-toolbar{padding-inline:12px;gap:8px}
+  .studio-toolbar .mode-tab{padding-inline:11px;font-size:11px}
+  #appShell .workbench{padding-inline:12px;padding-bottom:10px}
+  .layout-controls button{padding-inline:9px}
+}
+@media(max-width:1200px){#appShell .scene-camera .camera-zoom{display:none}#appShell .scene-camera button{padding-inline:6px}.studio-toolbar{gap:8px}}
+@media(max-width:650px){
+  .studio-toolbar{display:grid;grid-template-columns:minmax(0,1fr);padding:7px 8px;gap:5px}
+  .studio-toolbar .mode-nav{width:100%;height:38px;justify-content:space-between}
+  .studio-toolbar .mode-tab{padding-inline:8px;font-size:11px;height:30px}
+  .layout-controls{justify-content:center}
+  .layout-controls button{min-height:28px}
+  .layout-controls .layout-arrangement,.layout-controls .layout-reset{height:31px;width:31px}
+  #appShell .workbench{padding:0 8px 8px}
+  #appShell .scene-column{grid-template-rows:43px minmax(0,1fr) 24px}
+  #appShell .scene-heading{padding:6px 8px 0;gap:6px}
+  #appShell .scene-heading h1{font-size:20px}
+  #appShell .scene-tools{gap:4px;padding-right:31px}
+  #appShell .scene-range{min-width:38px;padding-inline:5px;height:26px;font-size:10px}
+  #appShell .scene-tool{width:28px;height:28px}
+  #appShell .fretboard-toggle{top:8px;width:28px;height:28px;right:7px!important}
+  #appShell .scene-bottom{padding-inline:8px;gap:6px}
+  #appShell .scene-legend{font-size:8px;gap:7px}
+  #appShell .scene-footer{font-size:8px;gap:6px}
+  #appShell .scene-footer span:last-child{display:none}
+  #appShell .panel-content{padding:16px 12px}
+  #appShell .workspace-panel{grid-template-rows:minmax(0,1fr) 52px}
+  #appShell .playback-dock{gap:6px;padding:8px 10px}
+  #appShell .playback-dock button{min-height:36px;height:36px}
+  #appShell .play-main{max-width:none}
+  #appShell .play-arpeggio{padding-inline:10px}
+  #appShell .motion-hud{display:none!important}
+}
+@media(max-height:500px) and (min-width:651px){
+  .studio-toolbar{min-height:44px;padding:5px 10px;gap:8px}
+  .studio-toolbar .mode-tab{padding-inline:9px;font-size:10px}
+  .layout-controls button{font-size:10px;padding-inline:8px}
+  #appShell .workbench{padding:0 8px 6px}
+  #appShell .scene-column{grid-template-rows:40px minmax(0,1fr) 24px}
+  #appShell .scene-heading{padding-inline:8px}
+  #appShell .scene-heading h1{font-size:19px}
+  #appShell .scene-bottom{padding-inline:8px}
+  #appShell .scene-footer{display:none}
+  #appShell .scene-tools{gap:4px}
+  #appShell .scene-range{min-width:37px;padding-inline:4px}
+  #appShell .workspace-panel{grid-template-rows:minmax(0,1fr) 46px}
+  #appShell .playback-dock{padding:5px 8px;gap:4px}
+  #appShell .playback-dock button{min-height:34px;height:34px;font-size:10px}
+  #appShell .panel-content{padding:12px}
+  #appShell .play-arpeggio{padding-inline:7px}
+  #appShell .motion-hud{display:none!important}
+}
+html[data-theme='light'] .studio-toolbar .mode-nav,html[data-theme='light'] .layout-focus{background:#ffffff80}
+html[data-theme='light'] .layout-controls button[aria-pressed='true']{background:#45386212;color:#312b40}
+html[data-theme='light'] .scene-heading h1{color:#312b40}
+html[data-theme='light'] #appShell .workspace-panel{background:#edeaf2}
+@media print{.studio-toolbar,.workspace-divider,.workspace-panel{display:none!important}#appShell{display:block}#appShell .workbench{display:block}#appShell .scene-column{height:620px;grid-template-rows:48px minmax(0,1fr) 26px}}

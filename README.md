@@ -19,6 +19,20 @@ A new guitar workspace for seeing and hearing harmony move across a playable fre
 
 Motion is an independent version. Its source, storage and offline cache do not replace the original studio.
 
+## Adjustable studio · 1.3
+
+Use **Balanced / Guitar / Tools** to allocate space without changing your music.
+Drag the separator, or focus it and use the arrow keys (Shift for larger steps).
+Double-click or press Enter on the separator to restore balance. The layout
+button switches between stacked and side-by-side arrangements when space allows;
+the reset button restores the automatic arrangement. Proportions are remembered
+separately for each arrangement. Small portrait screens stack the guitar above
+the tools; short landscape screens place them beside each other. Tool layouts
+follow their actual panel width. Hide the fretboard to give the tools the full
+workspace, then reopen it with the visible strip. Desktop camera controls sit
+in the shared toolbar, leaving the fretboard surface available for playing.
+Wide Notes panels show chord and scale matches beside one another.
+
 ## Orbit update · 1.2
 
 ![Orbit showing G7 and its ranked chord connections](assets/previews/orbit-studio.jpg)

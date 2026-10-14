@@ -14,11 +14,14 @@ html=html.replace('<link rel="stylesheet" href="atlas.css">',()=>`<style>\n${fs.
 html=html.replace(/^\s*<script defer src="(?:scale-catalog|makam-catalog|makam-tuning|i18n|theory|chord-pool|voicing-catalog|guitar|voicing-engine|chord-diagram|guitar-samples|audio|harmony-engine|harmony-atlas|orbit-engine|orbit-view|harmony-map|export|scene|pwa|motion-engine|motion-workspace|app)\.js"><\/script>\s*$/gm,"");
 html=html.replace('<link rel="stylesheet" href="orbit.css">',()=>`<style>\n${fs.readFileSync(path.join(base,"orbit.css"),"utf8")}\n</style>`);
 const scripts=files.map(name=>{const code=fs.readFileSync(path.join(base,name),"utf8");if(code.includes("</script>"))throw new Error(`${name} contains an unescaped script terminator`);return `<script>\n${code}\n</script>`;}).join("\n");
+html=html.replace('<link rel="stylesheet" href="workspace-layout.css">',()=>`<style>\n${fs.readFileSync(path.join(base,"workspace-layout.css"),"utf8")}\n</style>`);
+html=html.replace('<script defer src="workspace-layout.js"></script>',"");
+const layoutScript=fs.readFileSync(path.join(base,"workspace-layout.js"),"utf8");
 if(!html.includes("</body>"))throw new Error("Body closing tag not found");
 // A local single-file copy cannot install an offline worker or resolve app icons.
 html=html.replace('<link rel="stylesheet" href="motion.css">',()=>`<style>\n${fs.readFileSync(path.join(base,"motion.css"),"utf8")}\n</style>`);
 html=html.replace(/^\s*<link rel="(?:manifest|icon|apple-touch-icon)"[^>]*>\s*$/gm,"");
-html=html.replace("</body>",()=>`${scripts}\n</body>`);
+html=html.replace("</body>",()=>`${scripts}\n<script>\n${layoutScript}\n</script>\n</body>`);
 const output=path.join(base,"Guitar_Brain_Motion.html");
 fs.writeFileSync(output,html,"utf8");
 console.log(`Standalone app written: ${output}`);
