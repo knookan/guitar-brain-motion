@@ -82,9 +82,9 @@
     const policy=options.policy||policyFor(chord,options),music=musicalMatch(frets,chord,tuning,capo,policy);if(!music)return null;
     const hand=fingering(frets,capo,options);if(!hand.playable)return null;
     const played=frets.flatMap((f,s)=>f>=0?[s]:[]),first=played[0],last=played.at(-1),internalMutes=frets.slice(first,last+1).filter(f=>f<0).length;
-    if(internalMutes>1)return null;
+    if(internalMutes>1&&!options.manual)return null;
     const openStrings=frets.filter(f=>f===capo).length,pressed=frets.filter(f=>f>capo),position=pressed.length?Math.min(...pressed):capo;
-    if(openStrings&&pressed.length&&Math.max(...pressed)>capo+(shape.known?7:5))return null;
+    if(!options.manual&&openStrings&&pressed.length&&Math.max(...pressed)>capo+(shape.known?7:5))return null;
     const sourceBarres=shape.barres?.filter(b=>b.fret>capo&&b.fromString>=0&&b.toString<frets.length&&b.fromString<b.toString&&frets[b.fromString]===b.fret&&frets[b.toString]===b.fret&&!frets.slice(b.fromString,b.toString+1).some(f=>f>=0&&f<b.fret));
     const barres=sourceBarres?.length?sourceBarres:shape.fingers?[]:hand.barres;
     const tags=[];if(openStrings)tags.push("open");if(barres.length)tags.push("barre");

@@ -16,6 +16,8 @@ Voice alignment anchors bass and top voice, then pairs the inner voices in pitch
 
 The planner optimizes the complete sequence with a layered path search. Costs combine pitch travel, large leaps, string/fret travel, hand shift and ergonomic effort. Alternative weights are design choices, not music-theory laws. Candidate sampling retains every available upper-pitch register and then a diverse set of up to 120 grips per chord. Results are balanced suggestions within that bounded search, not a proof of a globally optimal fingering across all imaginable guitar grips. The inherited generator considers up to six sounding strings.
 
+Version 1.2 returns up to 6, 12 or 24 distinct routes and retains that many prefixes per destination. A catalogue or manually validated first grip restricts the starting pool to that exact physical voicing. Top-voice and region changes retain the committed grip; conflicting constraints produce an empty result rather than silently changing it. See [Orbit and first-voicing model](ORBIT-MODEL.md) for manual validation and harmonic-priority details.
+
 ## Playback and animation
 
 One plan supplies both route diagrams and audio events. The route audio path preserves duplicate pitches and physical positions. Visual chord changes follow the nominal Web Audio measure boundaries; sounding-note flashes follow each actual sample's duration. Pending playback requests and auditions are cancelled when superseded.

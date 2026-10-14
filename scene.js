@@ -23,14 +23,14 @@
     const aspect=width/Math.max(1,height),fov=34*Math.PI/180,theta=yaw*Math.PI/180,phi=elevation*Math.PI/180;
     let distance=Math.max(7.6/(Math.tan(fov/2)*aspect),2.25/Math.tan(fov/2))*(mobile?.85:1.12),eye,matrix;
     const margin=mobile?.035:.12;
-    function atDistance(value){eye=[Math.sin(theta)*value*.52,-Math.cos(theta)*value*Math.cos(phi),value*Math.sin(phi)];matrix=multiply(perspective(fov,aspect),lookAt(eye,[0,0,.06]));if(!mobile)for(const index of [1,5,9,13])matrix[index]+=.12*matrix[index+2];}
+    function atDistance(value){eye=[Math.sin(theta)*value*.52,-Math.cos(theta)*value*Math.cos(phi),value*Math.sin(phi)];matrix=multiply(perspective(fov,aspect),lookAt(eye,[0,0,.06]));if(!mobile)for(const index of [1,5,9,13])matrix[index]+=.12*matrix[index+2];else if(aspect<4)for(const index of [1,5,9,13])matrix[index]*=1.55;}
     for(let attempt=0;attempt<18;attempt++){
       atDistance(distance);
       const corners=[[-7.7,-1.85,.25],[-7.7,1.85,.25],[7.2,-1.85,.25],[7.2,1.85,.25]].map(p=>project(p,matrix,width,height));
       if(corners.every(p=>p&&p.x>width*margin&&p.x<width*(1-margin)&&p.y>height*(mobile?.07:.12)&&p.y<height*(mobile?.91:.78)))break;
       distance*=1.06;
     }
-    atDistance(distance/clamp(Number(zoom)||1,.55,2.5));if(mobile&&aspect<4)for(const index of [1,5,9,13])matrix[index]*=1.55;return {matrix,eye};
+    atDistance(distance/clamp(Number(zoom)||1,.55,2.5));return {matrix,eye};
   }
   function vertex(out,p,n,c,mat){out.push(...p,...n,...c,mat);}
   function box(out,center,size,c,mat){

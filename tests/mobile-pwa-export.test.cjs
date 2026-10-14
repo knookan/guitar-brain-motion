@@ -24,7 +24,7 @@ check('Ayarlar aralığı kayıt edilir; SVG, PNG ve PDF aynı 24 perde modelini
  const F=require('./harmony-ui.test.cjs').fixture,f=F();f.app.setMode('project');f.change('exportRange','0-24');for(const action of ['exportSvg','exportPng','print'])f.action(action);assert.equal(f.exports.length,3);for(const e of f.exports)assert.equal(e.args.at(-1),'0-24');const loaded=F(false,f.preferences.saved);assert.equal(loaded.app.getState().exportRange,'0-24');
 });
 check('PWA manifesti tam ekran, serbest yön ve gerçek 192/512 maskable ikonları içerir',()=>{
- const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));assert.equal(manifest.display,'fullscreen');assert.equal(manifest.orientation,'any');assert.equal(manifest.start_url,'/');for(const icon of manifest.icons){const data=fs.readFileSync(icon.src);assert.equal(data.readUInt32BE(16),Number(icon.sizes.split('x')[0]));}assert(manifest.icons.some(i=>i.purpose==='maskable'));
+ const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));assert.equal(manifest.display,'fullscreen');assert.equal(manifest.orientation,'any');assert.equal(manifest.start_url,'./');for(const icon of manifest.icons){const data=fs.readFileSync(icon.src);assert.equal(data.readUInt32BE(16),Number(icon.sizes.split('x')[0]));}assert(manifest.icons.some(i=>i.purpose==='maskable'));
 });
 check('Offline önbellek bütün modülleri, gitar örneklerini ve iki fontu gerçek dosyalardan alır',()=>{
  const source=fs.readFileSync('sw.js','utf8'),assets=vm.runInNewContext(source.match(/const ASSETS=(\[[^;]+\]);/)[1]);for(const file of assets)if(file!=='./')assert(fs.existsSync(file),file);assert(assets.includes('./guitar-samples.js'));assert(assets.includes('./pwa.js'));assert(assets.includes('./assets/fonts/Manrope.ttf'));

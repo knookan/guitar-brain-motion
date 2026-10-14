@@ -4,14 +4,14 @@
   const H=root.MBS2Harmony||(typeof require!=='undefined'?require('./harmony-engine.js'):null);
   let resizeObserver=null;
   const tr=text=>root.MBS2I18n?.t(text)||text,html=text=>root.MBS2I18n?.html(text)||text;
-  function dispose(){resizeObserver?.disconnect();resizeObserver=null;}
+  function dispose(){root.GBOrbitView?.capture?.();resizeObserver?.disconnect();resizeObserver=null;}
   const escape=text=>String(text??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function layout(nodes,width=370){
     const columns=width<340?2:3,cardWidth=width<340?86:98,rowHeight=122,padding=58,rows=Math.ceil(nodes.length/columns),height=Math.max(160,rows*rowHeight);
     return {height,cardWidth,positions:nodes.map((n,i)=>({id:n.id,x:(i%columns+.5)*width/columns,y:padding+Math.floor(i/columns)*rowHeight}))};
   }
   function render(container,graph,activeId,{onSelect=()=>{},onAction=()=>{},limit=12,onMore=()=>{},focusKind='all'}={}){
-    const options=arguments[3]||{};if(options.lens)return renderAtlas(container,graph,activeId,options);
+    const options=arguments[3]||{};if(options.lens==='orbit')return root.GBOrbitView.render(container,graph,options.anchor,{...options,onChoose:options.onSelect,onPlay:node=>options.onAction?.(node,'play')});if(options.lens)return renderAtlas(container,graph,activeId,options);
     dispose();
     container.replaceChildren();if(!graph.analysis){container.textContent=tr('Armoni hesaplanamadı.');return;}
     const view=document.createElement('div');view.className='map-view';view.setAttribute('aria-label',graph.root+' '+(root.MBS2I18n?.scaleName(graph.scale)||graph.scale.name)+' '+tr('Armoni haritası'));

@@ -2,7 +2,7 @@
 (function(root){
   'use strict';
   let prompt=null,registration=null,offline=false,failure=false,reloading=false;
-  const supported=()=>root.location?.protocol==='https:'||root.location?.hostname==='localhost';
+  const supported=()=>root.location?.protocol==='https:'||['localhost','127.0.0.1','::1'].includes(root.location?.hostname);
   const installed=()=>!!root.matchMedia?.('(display-mode: standalone), (display-mode: fullscreen)').matches||root.navigator?.standalone===true;
   const notify=()=>root.dispatchEvent?.(new Event('mbs-pwa-change'));
   root.addEventListener?.('beforeinstallprompt',event=>{event.preventDefault();prompt=event;notify();});
