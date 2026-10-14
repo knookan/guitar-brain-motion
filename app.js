@@ -10,10 +10,10 @@
   const THEMES=['graphite','midnight','cyberpunk','light'];
   const $=selector=>document.querySelector(selector);
   const SHARP=["C","C♯","D","D♯","E","F","F♯","G","G♯","A","A♯","B"],FLAT=["C","D♭","D","E♭","E","F","G♭","G","A♭","A","B♭","B"];
-  const MODES=["motion","explore","chord","scale","harmony","project"],STORE_KEY="guitar-brain-motion-v1-project";
+  const MODES=["explore","chord","scale","harmony","motion","project"],STORE_KEY="guitar-brain-motion-v1-project";
   const defaults={version:1,language:"en",theme:"graphite",font:"manrope",cameraView:"top",cameraZoom:1,mode:"explore",lastMusicMode:"explore",selectedPositions:[],chordRoot:"C",chordType:"major",customChord:null,slashBass:null,modifiers:{add:[],alter:[],omit:[]},scaleRoot:"C",scaleId:"major",harmonyRoot:"C",harmonyScale:"major",harmonySize:3,harmonyGrammar:"auto",harmonyFocus:"diatonic",mapLayers:{primary:true,secondary:true,borrowed:true,leading:false,tritone:false,relatedII:false,chromatic:false,commonTone:false,mediants:false,bluesHarmony:true},borrowSource:"auto",scaleFamily:"all",harmonyFamily:"all",scaleQuery:"",harmonyQuery:"",scaleChordLimit:12,mapNodeLimit:12,sceneRange:0,tuningId:"standard",customTuning:null,capo:0,spelling:"sharp",color:"#7ee5e0",bpm:92,arpeggioDirection:"up",activeVoicingId:null,diagramLabels:"notes",sceneToneView:false,advancedOpen:false,showAllTypes:false,voicingFamily:"all",voicingDifficulty:"all",voicingPosition:"all",voicingBass:"all",voicingCompleteness:"practical",voicingLimit:12};
   defaults.chordEvidence=[];
-  Object.assign(defaults,{mode:'motion',lastMusicMode:'motion',color:'#d9f87b',font:'space',motionPreference:'system'});
+  Object.assign(defaults,{mode:'explore',lastMusicMode:'explore',harmonyLens:'functions',plrRoot:'C',plrType:'major',color:'#d9f87b',font:'space',motionPreference:'system'});
   Object.assign(defaults,{chordPool:[],poolTonic:'any',poolChromatic:false,fretboardCollapsed:false,compareScale:'none',positionFocus:'all',exportRange:'visible'});
   Object.assign(defaults,{makamPlayback:'comma',makamExample:'theory',makamNotationAnchor:false,makamReferenceA:440});
   function clone(value){return JSON.parse(JSON.stringify(value));}
@@ -49,6 +49,7 @@
     for(const key of ["scaleChordLimit","mapNodeLimit"])out[key]=Math.max(12,Math.min(144,Number(out[key])||12));
     if(out.borrowSource!=="auto"&&!T.SCALES.some(s=>s.id===out.borrowSource))out.borrowSource="auto";
     out.harmonySize=out.harmonySize===4?4:3;
+    if(!["functions","fifths","plr"].includes(out.harmonyLens))out.harmonyLens="functions";if(T.parseNote(out.plrRoot)===null)out.plrRoot="C";out.plrType=out.plrType==="minor"?"minor":"major";
     if(!['auto','contained','quartal'].includes(out.harmonyGrammar))out.harmonyGrammar='auto';
     if(!['all','diatonic',...Object.keys(defaults.mapLayers)].includes(out.harmonyFocus))out.harmonyFocus='diatonic';
     for(const key of ["chordRoot","scaleRoot","harmonyRoot"])if(T.parseNote(out[key])===null)out[key]="C";
@@ -68,7 +69,8 @@
     out.voicingLimit=Math.max(12,Math.min(144,Number(out.voicingLimit)||12));return out;
   }
   function loadLocal(){try{return normalize(safeParse(root.localStorage.getItem(STORE_KEY)||"null"));}catch(_){return clone(defaults);}}
-  let state=loadLocal(),scene=null,toastTimer=null,activeChord=null,activeVoicing=null,degreePreview=false;
+  let state=loadLocal();state.mode=state.lastMusicMode="explore";
+  let scene=null,toastTimer=null,activeChord=null,activeVoicing=null,degreePreview=false;
   const voicesCache=new Map();
   let playbackRequest=0;
   function persistentState(){const stored={};for(const key of Object.keys(defaults))stored[key]=state[key];return stored;}
@@ -197,7 +199,7 @@
     if(state.mode==='harmony')for(const [selector,key] of [['.harmony-picker','_harmonyPickerOpen'],['.harmony-layer-controls','_harmonyLayersOpen']])if(state[key])host.querySelector(selector)?.setAttribute('open','');
     host.scrollTop=keepScroll?Math.min(oldScroll,host.scrollHeight):0;bindPanel();updatePlayLabels();
   }
-  function syncNav(){document.querySelectorAll(".mode-tab").forEach(tab=>{const active=tab.dataset.mode===state.mode;tab.classList.toggle("active",active);tab.setAttribute("aria-pressed",String(active));});}
+  function syncNav(){document.documentElement?.setAttribute?.("data-workspace",state.mode);document.querySelectorAll(".mode-tab").forEach(tab=>{const active=tab.dataset.mode===state.mode;tab.classList.toggle("active",active);tab.setAttribute("aria-pressed",String(active));});}
   function panelHeader(title){return '<h2 class="panel-title">'+escapeHtml(title)+'</h2>';}
   function sectionLabel(title,extra=""){return '<div class="section-label"><span>'+title+'</span>'+extra+'</div>';}
   function button(action,label,attrs="",className="secondary-button"){return '<button class="'+className+'" data-action="'+action+'" '+attrs+'>'+label+'</button>';}
@@ -310,16 +312,21 @@
     html+='<div class="panel-section">'+sectionLabel(chordTitle,degreeSizeControl())+'<div class="degree-grid">'+degrees.slice(0,state.scaleChordLimit).map(degreeCard).join("")+'</div>'+(degrees.length>state.scaleChordLimit?button('moreScaleChords','12 akor daha','','more-voicings'):'')+(!degrees.length?'<p class="harmony-notice">Bu koleksiyonda seçilen türden tanınmış akor bulunamadı.</p>':'')+'</div>';host.innerHTML=localHtml(html);
   }
   function renderHarmony(host){
-    const graph=MapView.buildGraph(state.harmonyRoot,state.harmonyScale,{...state.mapLayers,sevenths:state.harmonySize===4,borrowSource:state.borrowSource,grammar:state.harmonyGrammar});state._visibleGraph=graph;state._visibleDegrees=graph.analysis.chords;
+    const L=(tr,en)=>state.language==='tr'?tr:en,Atlas=root.MBS2HarmonyAtlas,graph=MapView.buildGraph(state.harmonyRoot,state.harmonyScale,{...state.mapLayers,sevenths:state.harmonySize===4,borrowSource:state.borrowSource,grammar:state.harmonyGrammar});state._visibleGraph=graph;state._visibleDegrees=graph.analysis.chords;
     const views=[{id:'diatonic',name:'Gam içi',count:graph.nodes.filter(n=>n.kind==='diatonic').length},...graph.layers.filter(l=>l.enabled&&l.count>0),{id:'all',name:'Tam harita',count:graph.nodes.length}];
     if(!views.some(v=>v.id===state.harmonyFocus))state.harmonyFocus='diatonic';
-    let html=panelHeader("Armoni")+poolPanel()+'<details class="harmony-picker"><summary>'+escapeHtml(state.harmonyRoot+' '+scaleName(graph.scale))+' <small>Gamı değiştir</small></summary>'+scalePicker("harmony")+'</details>'+analysisSummary(graph.analysis,true)+grammarControl();
-    html+='<details class="advanced-panel harmony-layer-controls"><summary>Armoni katmanları</summary><div class="harmony-layer-grid">'+graph.layers.map(layer=>'<label class="harmony-layer'+(!layer.available?' unavailable':'')+'" title="'+escapeHtml(layer.available?layer.explanation:'Bu armonik yaklaşım için uygulanmaz')+'"><input type="checkbox" data-change="'+layer.id+'"'+(state.mapLayers[layer.id]?' checked':'')+(!layer.available?' disabled':'')+'><span>'+escapeHtml(layer.name)+'</span><small>'+layer.count+'</small></label>').join('')+'</div>'+(graph.layers.find(l=>l.id==='borrowed').available&&state.mapLayers.borrowed?'<label class="field borrow-source">Ödünç alınacak paralel gam<select class="select-control" data-change="borrowSource"><option value="auto">Bağlama göre · majör / doğal minör</option>'+['major','naturalMinor','harmonicMinor','melodicMinor','dorian','phrygian','lydian','mixolydian','harmonicMajor'].map(id=>'<option value="'+id+'"'+(state.borrowSource===id?' selected':'')+'>'+escapeHtml(T.SCALES.find(s=>s.id===id).name)+'</option>').join('')+'</select></label>':'')+'</details>';
-    html+='<div class="panel-section">'+sectionLabel('Görünüm',degreeSizeControl())+'<div class="harmony-views">'+views.map(v=>'<button data-action="harmonyFocus" data-value="'+v.id+'" class="'+(state.harmonyFocus===v.id?'active':'')+'">'+escapeHtml(v.name)+' <small>'+v.count+'</small></button>').join('')+'</div><div id="mapHost"></div></div>';
-    const selected=graph.nodes.find(n=>n.id===state.mapActiveId),tension=selected?H.tensionInfo(selected.record,graph.analysis.scale):null;
-    if(activeChord)html+='<div class="panel-section">'+sectionLabel("Seçili akor",selected?'<span>'+escapeHtml(selected.degree)+'</span>':'')+chordFocus(activeChord,activeVoicing)+(tension?.tensions.length?'<div class="harmonic-tensions">Gam renkleri: '+tension.tensions.map(n=>'<span'+(n.caution?' class="caution" title="Akorun üçlü/beşlisinin yarım ses üstünde; kullanım bağlama bağlıdır"':'')+'>'+escapeHtml(n.name)+' '+escapeHtml(n.label)+'</span>').join(' · ')+'</div>':'')+(selected?.caution?'<p class="harmony-notice">'+escapeHtml(selected.caution)+'</p>':'')+(selected?.source?'<a class="theory-source" href="'+selected.source+'" target="_blank" rel="noopener noreferrer">Bağlantının kaynağı ↗</a>':'')+'</div>';
+    const selected=graph.nodes.find(n=>n.id===state.mapActiveId),plrChord=T.buildChord(state.plrRoot,state.plrType),record=state.harmonyLens==='plr'?plrChord:chordRecordFromNode(selected)||activeChord,tension=record?H.tensionInfo(record,graph.analysis.scale):null;state._atlasSelected=record;
+    const layers='<div class="harmony-layer-grid">'+graph.layers.map(layer=>'<label class="harmony-layer'+(!layer.available?' unavailable':'')+'" title="'+escapeHtml(layer.available?layer.explanation:'Bu armonik yaklaşım için uygulanmaz')+'"><input type="checkbox" data-change="'+layer.id+'"'+(state.mapLayers[layer.id]?' checked':'')+(!layer.available?' disabled':'')+'><span>'+escapeHtml(layer.name)+'</span><small>'+layer.count+'</small></label>').join('')+'</div>';
+    const borrow=graph.layers.find(l=>l.id==='borrowed').available&&state.mapLayers.borrowed?'<label class="field borrow-source">Ödünç alınacak paralel gam<select class="select-control" data-change="borrowSource"><option value="auto">Bağlama göre · majör / doğal minör</option>'+['major','naturalMinor','harmonicMinor','melodicMinor','dorian','phrygian','lydian','mixolydian','harmonicMajor'].map(id=>'<option value="'+id+'"'+(state.borrowSource===id?' selected':'')+'>'+escapeHtml(scaleName(T.SCALES.find(s=>s.id===id)))+'</option>').join('')+'</select></label>':'';
+    let html='<div class="harmony-atlas"><header class="atlas-toolbar"><details class="harmony-picker"><summary><strong>'+escapeHtml(state.harmonyRoot)+'</strong> '+escapeHtml(scaleName(graph.scale))+' <span>⌄</span></summary><div class="atlas-picker-popover">'+scalePicker('harmony')+'</div></details><div class="atlas-lenses">'+[['functions',L('İşlevler','Functions')],['fifths',L('Beşliler','Fifths')],['plr','PLR']].map(([id,name])=>button('harmonyLens',name,'data-value="'+id+'" aria-pressed="'+(state.harmonyLens===id)+'"',state.harmonyLens===id?'active':'')).join('')+'</div></header><div class="atlas-desk"><section class="atlas-main">';
+    if(state.harmonyLens!=='plr')html+='<div class="atlas-focus"><label>'+L('Bağlantılar','Relationships')+'<select data-change="atlasFocus">'+views.map(v=>'<option value="'+v.id+'"'+(state.harmonyFocus===v.id?' selected':'')+'>'+escapeHtml(tr(v.name))+' · '+v.count+'</option>').join('')+'</select></label>'+degreeSizeControl()+'</div>';
+    else html+='<div class="atlas-focus"><label>'+L('PLR merkezi','PLR centre')+'<select data-change="plrRoot">'+names().map(n=>'<option value="'+n+'"'+(T.parseNote(n)===T.parseNote(state.plrRoot)?' selected':'')+'>'+n+'</option>').join('')+'</select></label><select data-change="plrType" aria-label="'+L('Üçlü türü','Triad quality')+'"><option value="major"'+(state.plrType==='major'?' selected':'')+'>'+L('Majör','Major')+'</option><option value="minor"'+(state.plrType==='minor'?' selected':'')+'>'+L('Minör','Minor')+'</option></select></div>';
+    html+='<div id="mapHost"></div></section><aside class="atlas-inspector">';
+    if(record){const voice=getVoicings(record,1)[0]||null;html+='<div class="atlas-selected"><small>'+L('SEÇİLİ AKOR','SELECTED CHORD')+'</small><strong>'+escapeHtml(record.symbol)+'</strong><span>'+escapeHtml(selected?.degree||(state.harmonyLens==='plr'?'PLR':record.typeName||''))+'</span><div class="atlas-notes">'+record.notes.map(n=>'<span>'+escapeHtml(n.name)+'</span>').join('')+'</div>'+(voice?Diagram.render(voice,record,currentTuning(),state.capo,{labels:'degrees',compact:true}):'<p>'+L('Bu bölgede tutuş yok.','No grip in this region.')+'</p>')+'<div class="atlas-hear">'+button('atlasPlay',L('Dinle','Listen'),'data-value="block"')+button('atlasPlay',L('Arpej','Arpeggio'),'data-value="arp"')+'</div>'+button('motionPair',L('Merkez → bu akor','Centre → this chord'),'','atlas-to-motion')+'</div>';}
+    if(tension?.tensions.length)html+='<div class="atlas-tensions"><small>'+L('GAM RENKLERİ','SCALE COLOURS')+'</small>'+tension.tensions.map(n=>'<span class="'+(n.caution?'caution':'')+'">'+escapeHtml(n.name)+' <small>'+escapeHtml(n.label)+'</small></span>').join('')+'</div>';
+    html+='</aside></div><div class="atlas-settings"><details class="harmony-layer-controls"><summary>'+L('Katmanlar','Layers')+'</summary>'+layers+borrow+'</details><details><summary>'+L('Kurulum','Construction')+'</summary>'+grammarControl()+'</details><details><summary>'+L('Akorlardan gam bul','Find scale from chords')+'</summary>'+poolPanel()+'</details><details><summary>'+L('Teori / koma','Theory / commas')+'</summary>'+analysisSummary(graph.analysis,true)+'<a class="theory-source" href="'+Atlas.SOURCES[state.harmonyLens==='plr'?'plr':state.harmonyLens==='fifths'?'fifths':'functions']+'" target="_blank" rel="noopener noreferrer">'+L('Harita yaklaşımının kaynağı ↗','Map approach source ↗')+'</a></details></div></div>';
     host.innerHTML=localHtml(html);
-    MapView.render(host.querySelector("#mapHost"),graph,state.mapActiveId,{limit:state.mapNodeLimit,focusKind:state.harmonyFocus,onMore:()=>{state.mapNodeLimit=Math.min(144,state.mapNodeLimit+12);renderPanel();},onSelect:node=>{state.mapActiveId=node.id;setActiveChord(chordRecordFromNode(node));},onAction:(node,action)=>playChordRecord(chordRecordFromNode(node),action==="arpeggio")});
+    MapView.render(host.querySelector('#mapHost'),graph,state.mapActiveId,{lens:state.harmonyLens,anchor:plrChord,limit:state.mapNodeLimit,focusKind:state.harmonyFocus,onMore:()=>{state.mapNodeLimit=Math.min(144,state.mapNodeLimit+12);renderPanel();},onSelect:node=>{if(node.kind==='plr'){state.plrRoot=node.record.root;state.plrType=node.record.typeId;}else state.mapActiveId=node.id;setActiveChord(chordRecordFromNode(node));},onAction:(node,action)=>playChordRecord(chordRecordFromNode(node),action==='arpeggio')});
   }
   function preferencesPanel(){
     const selectors=[['language','Dil',[['en','English'],['tr','Türkçe']]],['theme','Tema',[['graphite','Grafit'],['midnight','Gece mavisi'],['cyberpunk','Cyberpunk'],['light','Açık tema']]],['font','Yazı tipi',[['manrope','Manrope'],['space','Space Grotesk'],['system','Sistem'],['serif','Georgia'],['mono','Consolas']]]];
@@ -370,10 +377,13 @@
         state[key]=control.value;degreePreview=false;state.scaleChordLimit=12;state.mapNodeLimit=12;
         if(key==='scaleRoot'||key==='harmonyRoot')state.scaleRoot=state.harmonyRoot=control.value;
         else state.scaleId=state.harmonyScale=control.value;
+        const picker=host.querySelector('.harmony-picker');if(picker)picker.open=false;
         if(state.mode==='harmony')resetHarmonyChord();
       }
       if(Object.keys(defaults.mapLayers).includes(key)){state.mapLayers[key]=control.checked;if(control.checked)state.harmonyFocus=key;}
       if(['scaleFamily','harmonyFamily','scaleQuery','harmonyQuery','borrowSource'].includes(key))state[key]=control.value;
+      if(key==='atlasFocus')state.harmonyFocus=control.value;
+      if(['plrRoot','plrType'].includes(key)){state[key]=control.value;activeChord=T.buildChord(state.plrRoot,state.plrType);activeVoicing=null;ensureVoicing(activeChord);}
       if(key==="harmonySize"){state.harmonySize=Number(control.value);state.scaleChordLimit=12;degreePreview=false;if(state.mode==='harmony')resetHarmonyChord();}
       if(key==='poolTonic'){state.poolTonic=control.value;state._poolLimit=8;}
       if(key==='poolChromatic'){state.poolChromatic=control.checked;state._poolLimit=8;}
@@ -393,7 +403,10 @@
   }
   function handleAction(action,b){
     const value=b.dataset.value,index=Number(b.dataset.index);
-    if(action==='motionCurrent'){if(root.GBMotionWorkspace.addChord(activeChord||chordFromState()))setMode('motion');else toast(tr('En fazla 8 akor'));return;}
+    if(action==='atlasPlay'){playChordRecord(state._atlasSelected,value==='arp');return;}
+    if(action==='motionPair'){const source=state._visibleGraph?.nodes.find(n=>n.rootPc===T.parseNote(state.harmonyRoot)&&n.kind==='diatonic')?.record||T.buildChord(state.harmonyRoot,'major'),target=state._atlasSelected||activeChord;if(target&&root.GBMotionWorkspace.setSequence([source,target]))setMode('motion');return;}
+    if(action==='harmonyLens'){state.harmonyLens=value;if(value==='plr'){const core=root.MBS2HarmonyAtlas.triadCore(activeChord);if(core){state.plrRoot=core.root;state.plrType=core.typeId;}}}
+    else if(action==='motionCurrent'){if(root.GBMotionWorkspace.addChord(activeChord||chordFromState()))setMode('motion');else toast(tr('En fazla 8 akor'));return;}
     if(action==='poolCurrent'){addToPool(activeChord||chordFromState());renderPanel();return;}
     else if(action==='poolMatch'){addToPool(state._visibleMatches?.[index]);return;}
     else if(action==='removePool'){state.chordPool.splice(index,1);state._poolLimit=8;}

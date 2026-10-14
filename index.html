@@ -12,6 +12,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="motion.css">
+  <link rel="stylesheet" href="atlas.css">
   <script defer src="scale-catalog.js"></script>
   <script defer src="makam-catalog.js"></script>
   <script defer src="makam-tuning.js"></script>
@@ -25,6 +26,7 @@
   <script defer src="guitar-samples.js"></script>
   <script defer src="audio.js"></script>
   <script defer src="harmony-engine.js"></script>
+  <script defer src="harmony-atlas.js"></script>
   <script defer src="harmony-map.js"></script>
   <script defer src="export.js"></script>
   <script defer src="scene.js"></script>
@@ -80,11 +82,11 @@
       </section>
       <aside class="workspace-panel" id="workspacePanel" aria-label="Çalışma araçları">
         <nav class="mode-nav" id="modeNav" aria-label="Çalışma bölümleri">
-          <button class="mode-tab motion-tab" data-mode="motion" aria-pressed="false"><i class="motion-icon" aria-hidden="true">⌁</i> Motion</button>
           <button class="mode-tab active" data-mode="explore" aria-pressed="true">Notalar</button>
           <button class="mode-tab" data-mode="chord" aria-pressed="false">Akor</button>
           <button class="mode-tab" data-mode="scale" aria-pressed="false">Gam</button>
           <button class="mode-tab" data-mode="harmony" aria-pressed="false">Armoni</button>
+          <button class="mode-tab motion-tab" data-mode="motion" aria-pressed="false"><i class="motion-icon" aria-hidden="true">⌁</i> Motion</button>
           <button class="mode-tab settings-tab" data-mode="project" aria-pressed="false" aria-label="Ayarlar">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 3-.5 2-2 1L4.5 5 3 8l1.5 1.5v3L3 14l1.5 3L7 16l2 1 .5 2h4l.5-2 2-1 2.5 1 1.5-3-1.5-1.5v-3L20 8l-1.5-3L16 6l-2-1-.5-2z"/><circle cx="11.5" cy="11" r="3"/></svg>
           </button>

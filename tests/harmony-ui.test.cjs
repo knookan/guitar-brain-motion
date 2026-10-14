@@ -22,14 +22,14 @@ function fixture(localized=false,saved=null){
   const nodes=new Map(),audio=[],exports=[];for(const id of ['panelContent','playMainText','tuningLabel','capoLabel','selectedCount','sceneTitle','sceneEyebrow','toast'])nodes.set('#'+id,new Element());
   const preferences={attributes:{},styles:{}},document={readyState:'loading',querySelector:id=>nodes.get(id)||null,querySelectorAll:()=>[],createElement:tag=>new Element(tag),createElementNS:(_,tag)=>new Element(tag),addEventListener(){},documentElement:{setAttribute:(k,v)=>preferences.attributes[k]=v,style:{setProperty:(k,v)=>preferences.styles[k]=v}}};
   const context={document,Event:class{constructor(type,options){this.type=type;Object.assign(this,options);}},MBS2Theory:T,MBS2MakamTuning:require('../makam-tuning.js'),MBS2ChordPool:require('../chord-pool.js'),MBS2Guitar:G,MBS2Diagram:D,MBS2Harmony:H,MBS2Export:{saveSvg:(...args)=>exports.push({type:'svg',args}),savePng:(...args)=>exports.push({type:'png',args}),print:(...args)=>exports.push({type:'pdf',args})},MBS2Audio:{playSequence:n=>audio.push({notes:n,arp:true,sequence:true}),playNotes:n=>audio.push({notes:n,arp:false}),playArpeggio:n=>audio.push({notes:n,arp:true})},localStorage:{getItem:()=>saved,setItem:(_,value)=>preferences.saved=value},console,setTimeout,clearTimeout};
-  vm.createContext(context);if(localized)vm.runInContext(fs.readFileSync('i18n.js','utf8'),context);vm.runInContext(fs.readFileSync('harmony-map.js','utf8'),context);vm.runInContext(fs.readFileSync('app.js','utf8'),context);
-  const app=context.MBS2App,host=nodes.get('#panelContent');app.setMode('scale');
+  context.MBS2HarmonyAtlas=require('../harmony-atlas.js');vm.createContext(context);if(localized)vm.runInContext(fs.readFileSync('i18n.js','utf8'),context);vm.runInContext(fs.readFileSync('harmony-map.js','utf8'),context);vm.runInContext(fs.readFileSync('app.js','utf8'),context);
+  const app=context.MBS2App,host=nodes.get('#panelContent'),initialState=app.getState();app.setMode('scale');
   const change=(key,value,checked=false)=>{const n=host.controls.find(n=>n.dataset.change===key);assert(n,key);n.value=value;n.checked=checked;n.emit('change');};
   const action=(key)=>{const n=host.controls.find(n=>n.dataset.action===key);assert(n,key);n.emit('click');};
   const descendants=(node,fn)=>node.children.flatMap(child=>[...(fn(child)?[child]:[]),...descendants(child,fn)]);
   const card=id=>descendants(host.querySelector('#mapHost'),n=>n.dataset.nodeId===id)[0];
-  const focus=id=>{const button=host.controls.find(n=>n.dataset.action==='harmonyFocus'&&n.dataset.value===id);assert(button,id);button.emit('click');};
-  return {app,host,change,action,audio,card,descendants,focus,preferences,document,exports};
+  const focus=id=>change('atlasFocus',id);
+  return {app,host,change,action,audio,card,descendants,focus,preferences,document,exports,initialState};
 }
 check('Gam araması alternatif adlarla çalışır, aile filtresi doğru seçenekleri getirir',()=>{
   const f=fixture();f.change('scaleQuery','super locrian');assert(f.host.innerHTML.includes('Gam · 2 sonuç'));assert(f.host.innerHTML.includes('value="altered"'));assert(f.host.innerHTML.includes('value="super-locrian-pentatonic"'));f.change('scaleQuery','');f.change('scaleFamily','Melodik minör modları');assert(f.host.innerHTML.includes('Gam · 7 sonuç'));
@@ -38,7 +38,7 @@ check('Gam seçimi Armoni ve kalıcı gitar görünümüyle aynı ton/gamı koru
   const f=fixture();f.change('scaleRoot','F♯');f.change('scaleId','dorian');f.action('scaleHarmony');const s=f.app.getState();assert.equal(s.mode,'harmony');assert.equal(s.harmonyRoot,'F♯');assert.equal(s.harmonyScale,'dorian');assert.equal(s._visibleGraph.analysis.profile.context,'modal');assert.equal(f.app.sceneState().activeScale.scale.id,'dorian');
 });
 check('İkincil dominantlar ve paralel minör ayrı görünür gruplardır; katman seçimi gerçek düğümleri değiştirir',()=>{
-  const f=fixture();f.action('scaleHarmony');assert(f.host.innerHTML.includes('data-value="secondary"'));assert(f.host.innerHTML.includes('data-value="borrowed"'));f.focus('secondary');assert(f.descendants(f.host.querySelector('#mapHost'),n=>n.dataset.layer==='secondary').length);f.focus('borrowed');assert(f.descendants(f.host.querySelector('#mapHost'),n=>n.dataset.layer==='borrowed').length);
+  const f=fixture();f.action('scaleHarmony');assert(f.host.innerHTML.includes('value="secondary"'));assert(f.host.innerHTML.includes('value="borrowed"'));f.focus('secondary');assert(f.descendants(f.host.querySelector('#mapHost'),n=>n.dataset.nodeId?.startsWith('secondary-')).length);f.focus('borrowed');assert(f.descendants(f.host.querySelector('#mapHost'),n=>n.dataset.nodeId?.startsWith('borrowed-')).length);
   f.change('secondary','',false);assert(!f.app.getState()._visibleGraph.nodes.some(n=>n.kind==='secondary'));f.change('leading','',true);assert(f.app.getState()._visibleGraph.nodes.some(n=>n.kind==='leading'));
 });
 check('Armoni kartlarının Seç/Çal/Arpej olayları hedef akorun gerçek gitar tutuşunu kullanır',()=>{
