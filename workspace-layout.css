@@ -135,6 +135,8 @@ html:not([data-workspace='project']) #panelContent>.panel-title{display:none}
   .studio-toolbar .mode-tab{padding-inline:8px;font-size:11px;height:30px}
   .layout-controls{justify-content:center}
   .layout-controls button{min-height:28px}
+  /* Phones always stack, so the side-by-side switch has no effect here. */
+  .layout-controls .layout-arrangement{display:none}
   .layout-controls .layout-arrangement,.layout-controls .layout-reset{height:31px;width:31px}
   #appShell .workbench{padding:0 8px 8px}
   #appShell .scene-column{grid-template-rows:43px minmax(0,1fr) 24px}

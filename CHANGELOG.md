@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Route cards show a hand-position trace per chord, scaled across all visible routes, with the fret span beside it.
+- The first-voicing diagram is larger on desktop.
+- Phones no longer show the side-by-side switch, which has no effect when stacked.
+- Offline cache advanced to `gb-motion-1.3.0-layout-r6` so updated files replace the previous cache.
 - Layout controller tests (`tests/workspace-layout.test.cjs`): defaults, corrupt storage, clamping, keyboard and preset resizing, side/stack availability, reset and Turkish labels.
 - The runner now includes the voicing UI, makam preference, harmony UI and pool playback suites, which were previously skipped.
 - Removed `tests/app.test.cjs`, which read a retired studio file and no longer ran.
