@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Layout controller tests (`tests/workspace-layout.test.cjs`): defaults, corrupt storage, clamping, keyboard and preset resizing, side/stack availability, reset and Turkish labels.
+- The runner now includes the voicing UI, makam preference, harmony UI and pool playback suites, which were previously skipped.
+- Removed `tests/app.test.cjs`, which read a retired studio file and no longer ran.
+- Added a Tests workflow that runs `node tests/run.cjs` on pushes and pull requests. The Pages deployment is unchanged.
+- Current count: 211 core/audio checks + 9 voice-route checks.
+
 ## 1.3.0 · 2026-10-14
 
 - One layout controller owns the guitar/tool split, independent of the selected musical workspace.
