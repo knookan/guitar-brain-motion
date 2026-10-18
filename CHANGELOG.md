@@ -1,16 +1,21 @@
 # Changelog
 
-## Unreleased
+## 1.4.0 · 2026-10-18
 
+Practice release.
+
+- Motion practice controls: tempo field, **Loop**, **Metronome** and **Count-in** (one bar), with the whole route repeating seamlessly until stopped.
+- Rhythm for route playback: Block, Strum ↓ and Strum ↓↑ (Arpeggio keeps its own button and takes priority).
+- Per-chord length of 1, 2, 4 or 8 beats on every sequence card; saved with the progression and the project file.
+- Keyboard: Space plays/stops, Escape stops, ← → move between chords in Motion. Controls that use these keys themselves keep them.
+- MIDI export now writes the whole Motion route timed by each chord's beats; a scale exports as a sequence of notes instead of one cluster.
+- Audio engine: look-ahead loop scheduling, synthetic click for the metronome, and a voice cap that only counts notes already sounding, so long patterns no longer cut off notes still waiting to play.
 - Route cards show a hand-position trace per chord, scaled across all visible routes, with the fret span beside it.
-- The first-voicing diagram is larger on desktop.
-- Phones no longer show the side-by-side switch, which has no effect when stacked.
-- Offline cache advanced to `gb-motion-1.3.0-layout-r6` so updated files replace the previous cache.
-- Layout controller tests (`tests/workspace-layout.test.cjs`): defaults, corrupt storage, clamping, keyboard and preset resizing, side/stack availability, reset and Turkish labels.
-- The runner now includes the voicing UI, makam preference, harmony UI and pool playback suites, which were previously skipped.
-- Removed `tests/app.test.cjs`, which read a retired studio file and no longer ran.
-- Added a Tests workflow that runs `node tests/run.cjs` on pushes and pull requests. The Pages deployment is unchanged.
-- Current count: 211 core/audio checks + 9 voice-route checks.
+- First-voicing diagram is larger on desktop; phones no longer show the side-by-side switch.
+- Fixes: English text for scale chords, comma accidentals, harmony-layer tooltips and the custom-tuning message; the Application section shows the real release; exported files are named `guitar-brain-motion-*`; "Add chord" is disabled at 8 chords; removed the redundant Save button and unused handlers; the help dialog now covers Motion, Orbit and layout.
+- Tests: layout controller and practice suites added, four previously skipped suites wired into the runner, dead legacy test removed, and a Tests workflow runs everything on push and pull request.
+- Offline cache advanced to `gb-motion-1.4.0-practice-r1`.
+- Current count: 227 core/audio checks + 9 voice-route checks.
 
 ## 1.3.0 · 2026-10-14
 

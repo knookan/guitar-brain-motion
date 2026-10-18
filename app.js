@@ -83,7 +83,7 @@
     if(state.tuningId==="custom"&&Array.isArray(state.customTuning)&&state.customTuning.length>=4&&state.customTuning.length<=8&&state.customTuning.every(n=>G.midiFromNote(n)!==null))return {id:"custom",name:"Özel akort",notes:state.customTuning};
     return G.TUNINGS.find(t=>t.id===state.tuningId)||G.TUNINGS[0];
   }
-  function motionContext(){return {tuning:currentTuning(),capo:state.capo,bpm:state.bpm,language:state.language,mode:state.mode,scene,scaleRoot:state.scaleRoot,scaleId:state.scaleId,scaleName:scaleName(T.SCALES.find(s=>s.id===state.scaleId))};}
+  function motionContext(){return {tuning:currentTuning(),capo:state.capo,bpm:state.bpm,language:state.language,mode:state.mode,scene,scaleRoot:state.scaleRoot,scaleId:state.scaleId,scaleName:scaleName(T.SCALES.find(s=>s.id===state.scaleId)),setBpm:value=>{state.bpm=Math.max(40,Math.min(220,Math.round(Number(value))||92));saveLocal();}};}
   function chordFromState(){
     if(state.customChord)return state.customChord;
     let chord;try{chord=T.buildChord(state.chordRoot,state.chordType||"major",state.modifiers);}catch(_){chord=T.buildChord("C","major");}
@@ -145,6 +145,23 @@
   function selectedMidis(){return state.selectedPositions.map(p=>G.positionMidi(currentTuning(),p.stringIndex,p.fret,state.capo)).filter(Number.isFinite);}
   function scaleMidi(rootText,scaleId,mode=state.makamPlayback){const scale=T.scaleNotes(rootText,scaleId);if(scale?.scale.makam&&MT)return MT.midis(scale.scale,60+scale.rootPc,{mode,example:state.makamExample,notationAnchor:state.makamNotationAnchor,referenceA:state.makamReferenceA});return scale?scale.pcs.map(pc=>60+scale.rootPc+T.mod(pc-scale.rootPc)).sort((a,b)=>a-b):[];}
   function makamAnalysis(){const harmony=musicMode()==='harmony',id=harmony?state.harmonyScale:state.scaleId,key=harmony?state.harmonyRoot:state.scaleRoot;return MT?.analyze(T.SCALES.find(s=>s.id===id),60+T.parseNote(key),{mode:state.makamPlayback,example:state.makamExample,notationAnchor:state.makamNotationAnchor,referenceA:state.makamReferenceA});}
+  // Motion exports the whole route timed by each chord's beats; a scale exports as a sequence; anything else as one block.
+  function midiExportNotes(){
+    const mode=musicMode();
+    if(mode==='motion'){const notes=root.GBMotionWorkspace.midiNotes();if(notes.length)return notes;}
+    const sequential=mode==='scale'&&!degreePreview;
+    return currentMidis().map((midi,i)=>sequential?{midi,startBeat:i*.5,durationBeats:.5}:{midi,startBeat:0,durationBeats:3.6});
+  }
+  // Space plays/stops, Escape stops, and in Motion the arrows change chord; controls keep their own keys.
+  function onShortcut(event){
+    if(event.defaultPrevented||event.ctrlKey||event.metaKey||event.altKey)return;
+    const target=event.target,interactive=target?.closest?.('button,input,select,textarea,summary,a,dialog,[role="button"],[role="separator"],[contenteditable]'),inDock=target?.closest?.('#playbackDock');
+    if(interactive&&!inDock)return;
+    const motion=musicMode()==='motion';
+    if(event.key===' '){event.preventDefault();if(motion&&root.GBMotionWorkspace.isPlaying())$("#stopPlayback").click();else playCurrent();return;}
+    if(event.key==='Escape'&&!interactive){$("#stopPlayback").click();return;}
+    if(motion&&!interactive&&(event.key==='ArrowLeft'||event.key==='ArrowRight')){event.preventDefault();root.GBMotionWorkspace.stepBy(event.key==='ArrowLeft'?-1:1);}
+  }
   function musicMode(){return state.mode==="project"?state.lastMusicMode:state.mode;}
   function currentMidis(){const mode=musicMode();if(mode==="motion")return root.GBMotionWorkspace.midis();if(mode==="explore")return selectedMidis();if(mode==="scale"&&!degreePreview)return scaleMidi(state.scaleRoot,state.scaleId);if(mode==='harmony'&&!activeChord)return scaleMidi(state.harmonyRoot,state.harmonyScale);return chordMidis();}
   function toast(message){const el=$("#toast");if(!el)return;el.textContent=tr(message);el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),2000);}
@@ -351,9 +368,9 @@
     let html=panelHeader("Ayarlar")+preferencesPanel()+'<div class="panel-section">'+sectionLabel("Enstrüman",'<span>'+tuning.notes.length+' tel</span>')+'<label class="field">Akort<select class="select-control" data-change="tuning">'+G.TUNINGS.map(t=>'<option value="'+t.id+'"'+(t.id===state.tuningId?" selected":"")+'>'+escapeHtml(t.name)+'</option>').join("")+'<option value="custom"'+(state.tuningId==="custom"?" selected":"")+'>Özel akort</option></select></label><label class="field" style="margin-top:12px">Özel akort · fiziksel tel sırasıyla<input type="text" data-change="customTuning" value="'+escapeHtml(state._customTuningDraft??(state.customTuning||[]).join(" "))+'" placeholder="E2 A2 D3 G3 B3 E4"></label><div class="action-row">'+button("applyCustomTuning","Özel akordu uygula")+'</div><label class="field" style="margin-top:14px">Capo<input type="number" data-change="capo" min="0" max="12" value="'+state.capo+'"></label></div>';
     html+='<div class="panel-section">'+sectionLabel("Ses")+'<div class="field-row"><label class="field">Tempo · BPM<input type="number" min="40" max="220" value="'+state.bpm+'" data-change="bpm"></label><label class="field">Arpej yönü<select class="select-control" data-change="arpeggioDirection">'+["up","down","up-down"].map((key,i)=>'<option value="'+key+'"'+(state.arpeggioDirection===key?" selected":"")+'>'+["Yukarı","Aşağı","Yukarı – aşağı"][i]+'</option>').join("")+'</select></label></div></div>';
     html+='<div class="panel-section">'+sectionLabel("Renk")+'<label class="field">Vurgu<input type="color" data-change="color" value="'+state.color+'"></label></div>';
-    html+='<div class="panel-section">'+sectionLabel("Proje")+'<div class="action-row">'+button("saveProject","Kaydet","","action-button primary")+button("exportProject","JSON indir")+'<label class="secondary-button file-label">JSON aç<input type="file" accept="application/json,.json" data-change="importProject" hidden></label></div></div>';
+    html+='<div class="panel-section">'+sectionLabel("Proje")+'<div class="action-row">'+button("exportProject","JSON indir")+'<label class="secondary-button file-label">JSON aç<input type="file" accept="application/json,.json" data-change="importProject" hidden></label></div></div>';
     html+='<div class="panel-section">'+sectionLabel("Dışa aktar")+'<label class="field">Çıktı perde aralığı<select class="select-control" data-change="exportRange">'+[['visible','Ekrandaki aralık'],['0-12','0–12'],['12-24','12–24'],['0-24','0–24 · tüm klavye']].map(([id,label])=>'<option value="'+id+'"'+(state.exportRange===id?' selected':'')+'>'+label+'</option>').join('')+'</select></label><div class="action-row">'+button("exportSvg","SVG")+button("exportPng","PNG")+button("print","PDF / Yazdır")+button("exportMidi","MIDI")+'</div></div>';
-    const pwa=root.MBS2PWA?.status();if(pwa){html+='<div class="panel-section">'+sectionLabel('Uygulama','<span>Motion 1.2</span>')+'<div class="action-row">'+(pwa.installed?'<span class="helper">Uygulama yüklü</span>':pwa.canInstall?button('installApp','Uygulamayı yükle','','action-button primary'):'')+button('fullscreen','Tam ekran')+(pwa.update?button('updateApp','Yeni sürümü aç'): '')+'</div><p class="helper">'+(pwa.offline?'Çevrimdışı kullanıma hazır':pwa.failed?'Çevrimdışı hazırlık başarısız; bağlantıyı kontrol edip yenile.':'Çevrimdışı kullanım hazırlanıyor…')+'</p>'+(!pwa.installed?'<p class="helper">Android / Chrome: tarayıcı menüsü → Uygulamayı yükle. iPhone / iPad: Safari → Paylaş → Ana Ekrana Ekle → Web uygulaması olarak aç.</p>':'')+'</div>';}
+    const pwa=root.MBS2PWA?.status();if(pwa){html+='<div class="panel-section">'+sectionLabel('Uygulama','<span>Motion '+escapeHtml(document.documentElement.dataset.release||'')+'</span>')+'<div class="action-row">'+(pwa.installed?'<span class="helper">Uygulama yüklü</span>':pwa.canInstall?button('installApp','Uygulamayı yükle','','action-button primary'):'')+button('fullscreen','Tam ekran')+(pwa.update?button('updateApp','Yeni sürümü aç'): '')+'</div><p class="helper">'+(pwa.offline?'Çevrimdışı kullanıma hazır':pwa.failed?'Çevrimdışı hazırlık başarısız; bağlantıyı kontrol edip yenile.':'Çevrimdışı kullanım hazırlanıyor…')+'</p>'+(!pwa.installed?'<p class="helper">Android / Chrome: tarayıcı menüsü → Uygulamayı yükle. iPhone / iPad: Safari → Paylaş → Ana Ekrana Ekle → Web uygulaması olarak aç.</p>':'')+'</div>';}
     host.innerHTML=localHtml(html);
   }
   function invalidateChord(){state.chordEvidence=[];activeChord=chordFromState();activeVoicing=null;state.activeVoicingId=null;state.voicingLimit=12;if(["drop2","drop3"].includes(state.voicingFamily)&&activeChord.pitchClasses.length!==4||state.voicingFamily==="shell"&&activeChord.pitchClasses.length<4)state.voicingFamily="all";ensureVoicing(activeChord);}
@@ -450,7 +467,6 @@
     else if(action==="scaleHarmony"){state.harmonyRoot=state.scaleRoot;state.harmonyScale=state.scaleId;setMode('harmony');return;}
     else if(action==="moreScaleChords")state.scaleChordLimit=Math.min(144,state.scaleChordLimit+12);
     else if(action==="harmGrammar"){state.harmonyGrammar=value;state.scaleChordLimit=12;state.mapNodeLimit=12;degreePreview=false;if(state.mode==='harmony')resetHarmonyChord();}
-    else if(action==="harmonyFocus")state.harmonyFocus=value;
     else if(action==="useParentScale"){state.scaleRoot=state.harmonyRoot=b.dataset.root;state.scaleId=state.harmonyScale=value;state.makamExample='theory';state.makamNotationAnchor=false;state.harmonyGrammar='auto';state.harmonyFocus='diatonic';setMode('harmony');return;}
     else if(action==="playScale"||action==="arpeggiateScale"){play(scaleMidi(state.scaleRoot,state.scaleId),true,null,T.SCALES.find(s=>s.id===state.scaleId)?.makam?{noteDuration:.5}:{});return;}
     else if(action==="showScale")degreePreview=false;
@@ -458,7 +474,6 @@
     else if(action==='playMakamDegree'){const a=makamAnalysis(),r=a?.rows[index];if(r)play([r.midi+12*Math.log2(a.referenceA/440)]);return;}
     else if(action==='compareMakamDegree'){const id=musicMode()==='harmony'?state.harmonyScale:state.scaleId,key=musicMode()==='harmony'?state.harmonyRoot:state.scaleRoot,scale=T.SCALES.find(s=>s.id===id),settings={example:state.makamExample,notationAnchor:state.makamNotationAnchor,referenceA:state.makamReferenceA},a=MT.analyze(scale,60+T.parseNote(key),{...settings,mode:'comma'}),b=MT.analyze(scale,60+T.parseNote(key),{...settings,mode:'equal'}),shift=12*Math.log2(state.makamReferenceA/440);if(a?.rows[index]&&b?.rows[index])play([b.rows[index].midi+shift,a.rows[index].midi+shift],true,null,{sequence:true,spacing:.7,noteDuration:.55});return;}
     else if(action==='makamRoot'){const id=musicMode()==='harmony'?state.harmonyScale:state.scaleId,m=T.SCALES.find(s=>s.id===id)?.makam;if(m){state.scaleRoot=state.harmonyRoot=m.traditionalRoot;state.makamNotationAnchor=!!m.tonicOffsetCommas;if(state.mode==='harmony')resetHarmonyChord();}}
-    else if(action==="saveProject"){saveLocal();toast("Proje kaydedildi.");return;}
     else if(action==="exportProject"){Export.saveJSON(projectSnapshot());return;}
     else if(action==='installApp'){root.MBS2PWA?.install().catch(()=>toast('Yükleme başlatılamadı. Tarayıcı menüsünü kullan.'));return;}
     else if(action==='fullscreen'){root.MBS2PWA?.fullscreen().catch(()=>toast('Bu tarayıcı tam ekranı desteklemiyor. Ana ekrana ekleyerek aç.'));return;}
@@ -466,7 +481,7 @@
     else if(action==="exportSvg"){Export.saveSvg($("#guitarScene"),sceneState(),state.exportRange);return;}
     else if(action==="exportPng"){Export.savePng($("#guitarScene"),sceneState(),state.exportRange);return;}
     else if(action==="print"){Export.print(sceneState(),state.exportRange);return;}
-    else if(action==="exportMidi"){Export.saveMidi(currentMidis().map(midi=>({midi,startBeat:0,durationBeats:3.6})),{bpm:state.bpm});return;}
+    else if(action==="exportMidi"){Export.saveMidi(midiExportNotes(),{bpm:state.bpm});return;}
     else if(action==="applyCustomTuning"){applyCustomTuning();return;}
     renderPanel();renderScene();saveLocal();
   }
@@ -541,6 +556,9 @@
     $("#clearNotes").addEventListener("click",()=>{state.selectedPositions=[];renderPanel();renderScene();saveLocal();});
     $("#playMain").addEventListener("click",playCurrent);$("#playArpeggio").addEventListener("click",()=>musicMode()==='motion'?root.GBMotionWorkspace.play(true).catch(error=>toast(error.message)):play(currentMidis(),true));$("#stopPlayback").addEventListener("click",()=>{root.GBMotionWorkspace.stop();Audio.stop();renderScene();root.GBMotionWorkspace.stageInfo();});
     root.addEventListener('mbs-pwa-change',()=>{if(state.mode==='project')renderPanel({keepScroll:true});});
+    document.addEventListener('keydown',onShortcut);
+    // A focused dock button would otherwise also click on Space release, restarting playback.
+    document.addEventListener('keyup',event=>{if(event.key===' '&&event.target?.closest?.('#playbackDock'))event.preventDefault();});
     $("#helpButton").addEventListener("click",()=>$("#helpDialog").showModal());$("#helpDialog").addEventListener("click",event=>{if(event.target===$("#helpDialog"))$("#helpDialog").close();});
   }
   function init(){

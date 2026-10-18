@@ -1,8 +1,8 @@
 /* Web Audio API fixture: routing, real PCM, tuning and cancellation; no speakers. */
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),bank=require('../guitar-samples.js');
 function fixture({suspended=false,deferred=false}={}){
-  const sources=[],buffers=[],nodes=[];let ctx=null;
-  const param=()=>({value:0,events:[],setValueAtTime(v,t){this.events.push(['set',v,t]);},linearRampToValueAtTime(v,t){this.events.push(['linear',v,t]);},cancelScheduledValues(t){this.events.push(['cancel',t]);}});
+  const sources=[],buffers=[],nodes=[],oscillators=[],timers=[];let ctx=null;
+  const param=()=>({value:0,events:[],setValueAtTime(v,t){this.events.push(['set',v,t]);},linearRampToValueAtTime(v,t){this.events.push(['linear',v,t]);},exponentialRampToValueAtTime(v,t){this.events.push(['exp',v,t]);},cancelScheduledValues(t){this.events.push(['cancel',t]);}});
   const node=()=>{const n={connections:[],connect(x){this.connections.push(x);},disconnect(){this.disconnected=true;}};nodes.push(n);return n;};
   class Context{constructor(){ctx=this;this.currentTime=0;this.sampleRate=48000;this.state=suspended?'suspended':'running';this.destination={};}
     resume(){this.resumed=true;return deferred?new Promise(resolve=>{this.finishResume=()=>{this.state='running';resolve();};}):Promise.resolve(this.state='running');}
@@ -11,10 +11,11 @@ function fixture({suspended=false,deferred=false}={}){
     createDynamicsCompressor(){return Object.assign(node(),Object.fromEntries(['threshold','knee','ratio','attack','release'].map(k=>[k,param()])));}
     createConvolver(){return node();}createStereoPanner(){return Object.assign(node(),{pan:param()});}
     createBuffer(channels,length,rate){const data=Array.from({length:channels},()=>new Float32Array(length));const b={length,sampleRate:rate,duration:length/rate,getChannelData:i=>data[i]};buffers.push(b);return b;}
+    createOscillator(){const o=Object.assign(node(),{type:'sine',frequency:{value:0},starts:[],stops:[],start(t){this.starts.push(t);},stop(t){this.stops.push(t);}});oscillators.push(o);return o;}
     createBufferSource(){const s=Object.assign(node(),{playbackRate:param(),starts:[],stops:[],start(t){this.starts.push(t);},stop(t){this.stops.push(t);}});sources.push(s);return s;}
   }
-  const context={MBS2GuitarSamples:bank,AudioContext:Context,atob:s=>Buffer.from(s,'base64').toString('binary'),console};vm.createContext(context);vm.runInContext(fs.readFileSync('audio.js','utf8'),context);
-  return {audio:context.MBS2Audio,sources,buffers,nodes,get ctx(){return ctx;}};
+  const context={MBS2GuitarSamples:bank,AudioContext:Context,atob:s=>Buffer.from(s,'base64').toString('binary'),console,setInterval:fn=>{timers.push(fn);return timers.length;},clearInterval:id=>{timers[id-1]=null;}};vm.createContext(context);vm.runInContext(fs.readFileSync('audio.js','utf8'),context);
+  return {audio:context.MBS2Audio,sources,buffers,nodes,oscillators,timers,tick(){timers.forEach(fn=>fn&&fn());},get ctx(){return ctx;}};
 }
 module.exports=async()=>{const checks=[];const check=async(name,fn)=>{await fn();checks.push(name);};
   await check('48 gerçek CC0 gitar örneği geçerli uzunlukta PCM ve kaynak metadata taşır',()=>{
@@ -51,5 +52,57 @@ module.exports=async()=>{const checks=[];const check=async(name,fn)=>{await fn()
   });
   await check('Rota sesi aynı MIDI değerindeki iki teli ayrı olaylar olarak korur ve ölçü sınırını aşmaz',async()=>{const f=fixture();await f.audio.playVoicingRoute([{events:[{midi:60,stringIndex:0,fret:3},{midi:60,stringIndex:1,fret:8}],beats:4},{events:[{midi:59,stringIndex:0,fret:2}],beats:4}],{bpm:120,arpeggio:true});const events=f.audio.getPlayback().events;assert.equal(events.length,3);assert.equal(events[0].midi,events[1].midi);assert.notEqual(events[0].position.stringIndex,events[1].position.stringIndex);assert.equal(events[0].stepEnd-events[0].stepStart,2);assert.equal(events[2].stepIndex,1);assert(events.every(e=>e.end<=e.stepEnd));f.audio.stop();assert.equal(f.audio.getPlayback().events.length,0);});
   await check('Bekleyen rota playback durdurulduğunda geç ses başlatmaz',async()=>{const f=fixture({suspended:true,deferred:true}),pending=f.audio.playVoicingRoute([{events:[{midi:60,stringIndex:1,fret:3}],beats:4}]);f.audio.stop();f.ctx.finishResume();await pending;assert.equal(f.sources.length,0);});
+  await check('Sayım dört tık çalar ve rota ancak sayımdan sonra başlar',async()=>{
+    const f=fixture();await f.audio.playVoicingRoute([{events:[{midi:60,stringIndex:1,fret:3}],beats:4}],{bpm:120,countIn:true});
+    assert.equal(f.oscillators.length,4);assert.deepEqual(f.oscillators.map(o=>o.frequency.value),[1560,1040,1040,1040]);
+    assert(Math.abs(f.oscillators[1].starts[0]-f.oscillators[0].starts[0]-.5)<1e-12);
+    assert(Math.abs(f.sources[0].starts[0]-(f.oscillators[0].starts[0]+2))<1e-12);
+  });
+  await check('Metronom her vuruşa tık koyar, vurgu yalnızca dörtlük grup başındadır',async()=>{
+    const f=fixture();await f.audio.playVoicingRoute([{events:[{midi:60,stringIndex:1,fret:3}],beats:4},{events:[{midi:62,stringIndex:1,fret:5}],beats:2}],{bpm:120,metronome:true});
+    assert.deepEqual(f.oscillators.map(o=>o.frequency.value),[1560,1040,1040,1040,1560,1040]);
+    assert(Math.abs(f.oscillators[5].starts[0]-f.oscillators[0].starts[0]-2.5)<1e-12);
+    const quiet=fixture();await quiet.audio.playVoicingRoute([{events:[{midi:60,stringIndex:1,fret:3}],beats:4}],{bpm:120});assert.equal(quiet.oscillators.length,0);
+  });
+  await check('Döngü bir sonraki geçişi yaklaşırken planlar, bitişte boşluk bırakmaz; Durdur zamanlayıcıyı da iptal eder',async()=>{
+    const f=fixture();await f.audio.playVoicingRoute([{events:[{midi:60,stringIndex:1,fret:3}],beats:4}],{bpm:120,loop:true});
+    assert.equal(f.sources.length,1);f.ctx.currentTime=.5;f.tick();assert.equal(f.sources.length,1);
+    f.ctx.currentTime=1.5;f.tick();assert.equal(f.sources.length,2);assert(Math.abs(f.sources[1].starts[0]-(f.sources[0].starts[0]+2))<1e-12);
+    f.tick();assert.equal(f.sources.length,2);
+    f.ctx.currentTime=3.5;f.tick();assert.equal(f.sources.length,3);
+    f.audio.stop();f.ctx.currentTime=5.5;f.tick();assert.equal(f.sources.length,3);
+  });
+  await check('Döngüde uzun kesinti sonrası geçmiş geçişler toplu çalınmaz',async()=>{
+    const f=fixture();await f.audio.playVoicingRoute([{events:[{midi:60,stringIndex:1,fret:3}],beats:4}],{bpm:120,loop:true});
+    f.ctx.currentTime=30.2;f.tick();assert.equal(f.sources.length,1);f.ctx.currentTime=31.6;f.tick();assert.equal(f.sources.length,2);assert(f.sources[1].starts[0]>=31.6);
+  });
+  await check('Durdur bekleyen sayım ve metronom tıklarını da iptal eder',async()=>{
+    const f=fixture();await f.audio.playVoicingRoute([{events:[{midi:60,stringIndex:1,fret:3}],beats:4}],{bpm:120,countIn:true,metronome:true});
+    assert(f.oscillators.length>=8);f.audio.stop();assert(f.oscillators.every(o=>o.stops.at(-1)===0));
+  });
+  await check('Strum kalıbı her vuruşta aşağı vuruş yapar; her vuruş kendi akorunun içinde kalır',async()=>{
+    const f=fixture();await f.audio.playVoicingRoute([{events:[{midi:48,stringIndex:5,fret:3},{midi:55,stringIndex:4,fret:5}],beats:4}],{bpm:120,pattern:'strum'});
+    const events=f.audio.getPlayback().events;assert.equal(events.length,8);
+    assert(Math.abs(events[2].start-events[0].start-.5)<1e-9);assert(events[1].start>events[0].start);assert.equal(events[1].midi,55);
+    assert(events.every(e=>e.end<=e.stepEnd+1e-9&&e.start>=e.stepStart));
+  });
+  await check('Aşağı-yukarı kalıbı sekizlik vuruşlarla çalar; yukarı vuruş telleri ters sırayla ve daha yumuşak çalar',async()=>{
+    const f=fixture();await f.audio.playVoicingRoute([{events:[{midi:48,stringIndex:5,fret:3},{midi:55,stringIndex:4,fret:5}],beats:2}],{bpm:120,pattern:'downup'});
+    const events=f.audio.getPlayback().events;assert.equal(events.length,8);
+    assert(Math.abs(events[2].start-events[0].start-.25)<1e-9);
+    assert.deepEqual(Array.from(events.slice(0,4).map(e=>e.midi)),[48,55,55,48]);
+    assert(events.every(e=>e.end<=e.stepEnd+1e-9));
+  });
+  await check('Arpej, strum kalıbından önceliklidir ve bilinmeyen kalıp blok çalar',async()=>{
+    const f=fixture();await f.audio.playVoicingRoute([{events:[{midi:48,stringIndex:5,fret:3},{midi:55,stringIndex:4,fret:5}],beats:4}],{bpm:120,pattern:'strum',arpeggio:true});
+    assert.equal(f.audio.getPlayback().events.length,2);
+    const g=fixture();await g.audio.playVoicingRoute([{events:[{midi:48,stringIndex:5,fret:3},{midi:55,stringIndex:4,fret:5}],beats:4}],{bpm:120,pattern:'nonsense'});
+    assert.equal(g.audio.getPlayback().events.length,2);
+  });
+  await check('Yüzlerce planlı nota, henüz çalmayan seslerin erken kesilmesine yol açmaz',async()=>{
+    const f=fixture(),chord=()=>({events:[40,47,52,56,59,64].map((midi,i)=>({midi,stringIndex:5-i,fret:i})),beats:8});
+    await f.audio.playVoicingRoute(Array.from({length:8},chord),{bpm:100,pattern:'downup'});
+    assert(f.sources.length>600);assert(f.sources.every(s=>s.stops.length===1));
+  });
   return checks;
 };

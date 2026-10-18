@@ -15,9 +15,18 @@ A new guitar workspace for seeing and hearing harmony move across a playable fre
 - Constrain the fret region, hold/raise/lower the upper voice, or lock the first grip.
 - Hear individual voice pairs, complete grips, whole routes and route arpeggios with synchronized string highlights.
 - Use the inherited chord, scale, harmony, makam, tuning and export tools in the redesigned persistent workspace.
+- Practise with tempo, Loop, Metronome, Count-in, Block / Strum ↓ / Strum ↓↑ rhythms and a length of 1, 2, 4 or 8 beats per chord. Space plays or stops; ← → change chord.
+- Export the whole route as timed MIDI.
 - English and Turkish, mobile fixed cameras, collapsible fretboard and installable PWA.
 
 Motion is an independent version. Its source, storage and offline cache do not replace the original studio.
+
+## Practice · 1.4
+
+In Motion, set **Tempo**, choose a **Rhythm**, then turn on **Loop**, **Metronome** or **Count-in**
+and press Play. Give each chord 1, 2, 4 or 8 beats with the selector on its card. Space plays or
+stops when no control has focus, Escape stops, and ← → move through the chords. Arpeggio ignores
+the rhythm setting. The **MIDI** button in Settings' export section writes the whole route timed by those beats.
 
 ## Adjustable studio · 1.3
 

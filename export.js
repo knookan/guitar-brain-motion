@@ -30,7 +30,7 @@
     parts.push('</svg>');return {source:parts.join(''),width,height};
   }
   function download(filename,mime,blob){const url=URL.createObjectURL(blob instanceof Blob?blob:new Blob([blob],{type:mime}));const a=document.createElement("a");a.href=url;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
-  function saveJSON(data,filename="muzik-beyni-proje.json"){download(filename,"application/json;charset=utf-8",JSON.stringify(data,null,2));}
+  function saveJSON(data,filename="guitar-brain-motion-project.json"){download(filename,"application/json;charset=utf-8",JSON.stringify(data,null,2));}
   function vlq(value){let buffer=Number(value)&0x7f;const bytes=[];while((value>>=7)){buffer<<=8;buffer|=((value&0x7f)|0x80);}for(;;){bytes.push(buffer&255);if(buffer&0x80)buffer>>=8;else break;}return bytes;}
   function midiFile(notes,{bpm=90,durationBeats=2}={}){
     const ppq=480,tempo=Math.round(60000000/Math.max(30,Math.min(240,bpm))),events=[];
@@ -40,7 +40,7 @@
     for(const event of events){track.push(...vlq(event.tick-previous),...event.bytes);previous=event.tick;}
     track.push(0,0xff,0x2f,0);const header=[0x4d,0x54,0x68,0x64,0,0,0,6,0,0,0,1,(ppq>>8)&255,ppq&255];const trackHeader=[0x4d,0x54,0x72,0x6b,(track.length>>>24)&255,(track.length>>>16)&255,(track.length>>>8)&255,track.length&255];return new Uint8Array([...header,...trackHeader,...track]);
   }
-  function saveMidi(notes,options){download("muzik-beyni-notalar.mid","audio/midi",midiFile(notes,options));}
+  function saveMidi(notes,options){download("guitar-brain-motion-notes.mid","audio/midi",midiFile(notes,options));}
   function serializeSvg(svg,width,height){
     const clone=svg.cloneNode(true);
     clone.setAttribute("xmlns","http://www.w3.org/2000/svg");clone.setAttribute("width",String(width));clone.setAttribute("height",String(height));
@@ -52,8 +52,8 @@
     clone.insertBefore(style,clone.firstChild);
     return new XMLSerializer().serializeToString(clone);
   }
-  function saveSvg(svg,model,range){download("muzik-beyni-gitar.svg","image/svg+xml;charset=utf-8",model?fretboardSvg(model,range).source:serializeSvg(svg,1400,756));}
-  function savePng(svg,model,range){const image=model?fretboardSvg(model,range):{source:serializeSvg(svg,1800,972),width:1800,height:972},url=URL.createObjectURL(new Blob([image.source],{type:"image/svg+xml;charset=utf-8"})),img=new Image();img.onload=()=>{const canvas=document.createElement("canvas");canvas.width=image.width;canvas.height=image.height;const ctx=canvas.getContext("2d");ctx.fillStyle="#080b12";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);canvas.toBlob(blob=>{if(blob)download("muzik-beyni-gitar.png","image/png",blob);URL.revokeObjectURL(url);});};img.onerror=()=>URL.revokeObjectURL(url);img.src=url;}
+  function saveSvg(svg,model,range){download("guitar-brain-motion-fretboard.svg","image/svg+xml;charset=utf-8",model?fretboardSvg(model,range).source:serializeSvg(svg,1400,756));}
+  function savePng(svg,model,range){const image=model?fretboardSvg(model,range):{source:serializeSvg(svg,1800,972),width:1800,height:972},url=URL.createObjectURL(new Blob([image.source],{type:"image/svg+xml;charset=utf-8"})),img=new Image();img.onload=()=>{const canvas=document.createElement("canvas");canvas.width=image.width;canvas.height=image.height;const ctx=canvas.getContext("2d");ctx.fillStyle="#080b12";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);canvas.toBlob(blob=>{if(blob)download("guitar-brain-motion-fretboard.png","image/png",blob);URL.revokeObjectURL(url);});};img.onerror=()=>URL.revokeObjectURL(url);img.src=url;}
   function print(model,range){if(!model){root.print();return;}document.querySelector('#printExport')?.remove();const host=document.createElement('div');host.id='printExport';host.innerHTML=fretboardSvg(model,range).source;document.body.append(host);document.documentElement.classList.add('printing-export');const cleanup=()=>{host.remove();document.documentElement.classList.remove('printing-export');};root.addEventListener('afterprint',cleanup,{once:true});try{root.print();}catch(error){cleanup();throw error;}}
   root.MBS2Export=Object.freeze({saveJSON,midiFile,saveMidi,saveSvg,savePng,print,fretboardSvg});
   if(typeof module!=="undefined"&&module.exports)module.exports=root.MBS2Export;

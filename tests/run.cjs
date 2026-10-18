@@ -1,5 +1,5 @@
 /* Current runtime suites; old studio layout snapshots are retained as references. */
-const groups=['theory','guitar','harmony','export','voicing','voicing-ui','scales-harmony','chord-matching','makam-tuning','preferences-makam','harmony-atlas','harmony-ui','orbit','pool-playback','scene','visual','mobile-pwa-export','standalone','workspace-layout'];
+const groups=['practice','theory','guitar','harmony','export','voicing','voicing-ui','scales-harmony','chord-matching','makam-tuning','preferences-makam','harmony-atlas','harmony-ui','orbit','pool-playback','scene','visual','mobile-pwa-export','standalone','workspace-layout'];
 async function run(){
   const names=groups.flatMap(name=>require('./'+name+'.test.cjs'));
   require('./motion.test.cjs');

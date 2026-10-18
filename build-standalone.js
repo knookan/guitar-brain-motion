@@ -19,7 +19,6 @@ html=html.replace('<script defer src="workspace-layout.js"></script>',"");
 const layoutScript=fs.readFileSync(path.join(base,"workspace-layout.js"),"utf8");
 if(!html.includes("</body>"))throw new Error("Body closing tag not found");
 // A local single-file copy cannot install an offline worker or resolve app icons.
-html=html.replace('<link rel="stylesheet" href="motion.css">',()=>`<style>\n${fs.readFileSync(path.join(base,"motion.css"),"utf8")}\n</style>`);
 html=html.replace(/^\s*<link rel="(?:manifest|icon|apple-touch-icon)"[^>]*>\s*$/gm,"");
 html=html.replace("</body>",()=>`${scripts}\n<script>\n${layoutScript}\n</script>\n</body>`);
 const output=path.join(base,"Guitar_Brain_Motion.html");
