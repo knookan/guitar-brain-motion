@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.8.0 · 2026-10-22
+
+Readability, themes and accessibility.
+
+- **Text never goes below 10 px.** Eighty-one rules between 6 and 9 px now share one `--fs-xs` value, and `<small>` can no longer shrink below it.
+- **Light theme finished.** The shell kept a dark gradient that overrode the light tokens, so the page header and chord title were dark on dark. The shell, camera and menu controls, legend, fret numbers, HUD, scale picker and form fields now follow the theme, and every pale text role has a readable colour in `theme-light.css`.
+- **Contrast measured, not guessed.** An automated sweep of all seven views in all four themes went from 79 contrast failures in the light theme and 6 in graphite to none (only disabled controls remain). Chord-type and chord-tone captions were brightened in the dark themes. The sweep also found an unlabelled chord-size select and a nested landmark, both fixed.
+- **Theme: System.** A fifth theme follows the operating system and switches live when it changes; the browser address-bar colour now matches the active theme.
+- Opening a workspace is announced to screen readers; focus stays on the tab so keyboard navigation is not interrupted.
+- The layout divider respects reduced motion.
+- Tests: `tests/a11y.test.cjs` (text-size floor, contrast of every theme's text tokens, address-bar colour per theme, light layer registration, screen-reader hooks). Current count: 267 core/audio checks + 9 voice-route checks.
+- Offline cache advanced to `gb-motion-1.8.0-access-r1`.
+
 ## 1.7.0 · 2026-10-22
 
 Fast start.

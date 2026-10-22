@@ -23,6 +23,11 @@ A new guitar workspace for seeing and hearing harmony move across a playable fre
 
 Motion is an independent version. Its source, storage and offline cache do not replace the original studio.
 
+## Readability · 1.8
+
+No text is smaller than 10 px, all four themes pass an automated contrast sweep, and the light theme
+now covers the whole page. Choose **System** under Settings → Theme to follow your operating system.
+
 ## Fast start · 1.7
 
 The first visit now downloads about 1 MB instead of 11 MB. Guitar sounds are separate small files

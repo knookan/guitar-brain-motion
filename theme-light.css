@@ -1,0 +1,44 @@
+/* Light theme text colours. The views were drawn for dark surfaces; on light surfaces their pale greys and the lime accent
+   fall below 4.5:1, so every pale text role is redefined here. Loaded last so it needs no !important. */
+html[data-theme='light']{--lt-muted:#58536a;--lt-strong:#3a3350;--lt-accent:#4b5b22;--lt-caution:#9a4a2c;--lt-violet:#43308f;--lt-blue:#2b3f61;--lt-teal:#1b5d52}
+
+/* Secondary and helper text */
+html[data-theme='light'] :is(.voicing-families button,.atlas-lenses button,.atlas-selected>small,.atlas-tensions>small,.atlas-selected>span,.atlas-tensions>span,.atlas-node-actions button,.atlas-empty,.atlas-hear button,.motion-presets button,.motion-section-title small,.voicing-description,.text-button,.orbit-controls button,.motion-toggle-row button,.motion-context button,.motion-swap,.route-number,.voice-delta,.voice-note small,.sequence-pick small,.sequence-edit,.route-count-control,.route-count-control button,.segmented-control button,.chord-type-label,.quality-choice small,.section-label>span:last-child:not(:first-child),.hmap-bar label,.diagram-caption strong){color:var(--lt-muted)}
+html[data-theme='light'] :is(.action-button,.secondary-button,.danger-button){color:var(--lt-strong)}
+html[data-theme='light'] .motion-swap{color:var(--lt-muted)}
+
+/* Accent text: the lime that glows on graphite becomes a readable olive */
+html[data-theme='light'] :is(.atlas-toolbar summary strong,.atlas-ring-center strong,.atlas-function.tonic,.plr .atlas-node.active .atlas-select strong,.atlas-node.tonic .atlas-select strong,.atlas-node-actions button:hover,.atlas-selected>strong,.atlas-to-motion,.atlas-settings>details[open]>summary,.editor-preview strong,.editor-modifiers button.active,.hmap-bar button.active,.hmap-bar button[aria-pressed='true'],.scene-camera button.active,.motion-section-title>button,.sequence-item.active strong,.motion-presets button:hover,.motion-toggle-row button.active,.motion-context button.active,.route-card.active .route-number,.motion-grip button,.motion-empty>span,.motion-empty button,.motion-transport button.active,.orbit-controls button.active,.orbit-controls button[aria-pressed='true'],.orbit-core>span,.orbit-trail [aria-current='step'],.orbit-option-play:hover,.action-button.primary,.share-banner strong,.sequence-top,.motion-library summary small){color:var(--lt-accent)}
+html[data-theme='light'] .atlas-tensions>span.caution{color:var(--lt-caution)}
+
+/* Selected chips */
+html[data-theme='light'] :is(.note-choice.active,.quality-choice.active,.chip-choice.active){color:var(--lt-teal)}
+html[data-theme='light'] .voicing-families button.active{color:var(--lt-violet)}
+html[data-theme='light'] .segmented-control button.active{color:var(--lt-blue)}
+html[data-theme='light'] .voice-pair.held .voice-delta{color:#1c6b5a}
+
+/* The shell paints its own dark gradient; on the light theme it follows the page tokens instead. */
+html[data-theme='light'] #appShell{background:radial-gradient(at 13% 8%,#ffffffd0,#ffffff00 45%),radial-gradient(at 86% 24%,#cfdcf0aa,#cfdcf000 45%),var(--bg)}
+
+/* Scene chrome (menu, camera, legend, footer, tone readout) sits on the light page */
+html[data-theme='light'] :is(.scene-legend span,.scene-footer span,.scene-footer,.scene-legend,.tone-lens small,.tone-lens>div>span){color:var(--lt-muted)}
+html[data-theme='light'] :is(.mode-tab,.scene-camera button,.scene-tool,.scene-range,.camera-reset,.settings-tab,.layout-controls button,.motion-icon){color:var(--lt-strong)}
+html[data-theme='light'] :is(.mode-tab.active,.mode-tab[aria-selected='true'],.scene-camera button.active,.scene-range.active,.scene-range[aria-pressed='true']){color:#1d2410}
+html[data-theme='light'] .tone-lens strong{color:var(--lt-strong)}
+html[data-theme='light'] .tone-lens em{color:var(--lt-violet)}
+
+/* Cards, lists and helper text in Notes, Chord, Scale and Harmony */
+html[data-theme='light'] :is(.atlas-notes span,.shape-number,.shape-kind,.fret-notation,.chord-tone,.chord-tone small,.profile-heading strong,.profile-heading span,.profile-line small,.harmonic-profile p,.profile-details p,.empty-state strong,.empty-state div,.card-actions button,.inline-check,.harmony-picker summary span,.atlas-settings summary,.harmony-layer small,.orbit-priority-label span,.orbit-priority-label small,.orbit-card small,.orbit-option-pick small,.orbit-option-pick em,.orbit-option-play,.voice-pair>button,.motion-register,.motion-grip span,.voice-note em,.sequence-remove,.orbit-trail button,.theory-source,.field,.field span){color:var(--lt-muted)}
+html[data-theme='light'] :is(.chord-tone,.shape-number){color:var(--lt-strong)}
+html[data-theme='light'] .degree-roman{color:var(--lt-accent)}
+html[data-theme='light'] .theory-source{color:#0b5f7a}
+html[data-theme='light'] .hmap-bar button{color:var(--lt-strong)}
+
+/* The scale picker floats over the page: it follows the panel instead of staying dark */
+html[data-theme='light'] .atlas-picker-popover{background:var(--panel);border-color:#4f46602e;box-shadow:0 20px 50px #2a24402e}
+
+/* Form controls: a light field with dark text */
+html[data-theme='light'] :is(.panel-content select,.panel-content input[type='text'],.panel-content input[type='number'],.panel-content input[type='search'],.select-control){background-color:#fff;color:var(--lt-strong);border-color:#4f46603a}
+
+/* Fretboard labels are drawn in SVG over the light page */
+html[data-theme='light'] .guitar-scene :is(.fret-number,.string-name){fill:var(--lt-muted)}
