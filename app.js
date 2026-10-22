@@ -578,6 +578,8 @@
       if(musicMode()==="harmony")resetHarmonyChord();
       scene=root.MBS2Scene.create($("#guitarScene"),(stringIndex,fret)=>togglePosition(stringIndex,fret),{canvas:$("#guitarCanvas"),stage:$("#sceneStage"),initialCamera:{preset:state.cameraView,zoom:state.cameraZoom},onCameraChange:cameraChanged});
       bindStatic();renderPanel({keepScroll:false});renderScene();
+      // Warm the common sample range once the page is idle; failures only mean the first chord loads on demand.
+      if(typeof root.setTimeout==='function')root.setTimeout(()=>{try{Promise.resolve(Audio.preload?.()).catch(()=>{});}catch(_){}},2500);
     }catch(error){
       console.error("Müzik Beyni Studio açılış hatası:",error);
       const panel=$("#panelContent");if(panel)panel.innerHTML=localHtml('<div class="notice startup-error"><strong>Uygulama başlatılamadı</strong><code>'+escapeHtml(error?.message||String(error))+'</code></div>');

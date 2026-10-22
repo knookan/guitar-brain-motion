@@ -15,4 +15,11 @@ check('Gömülü modüller birlikte yüklenir: 144 yaklaşım, minör V7 ve bili
   const c=context.MBS2Theory.buildChord('C','major'),shape=context.MBS2Guitar.generateVoicings(c,context.MBS2Guitar.TUNINGS[0],0,{maxResults:12})[0];
   assert.deepEqual(Array.from(shape.frets),[-1,3,2,0,1,0]);assert.equal(context.MBS2App.getState().mode,'explore');
 });
+check('Tek dosya sürümü 48 gitar örneğini gömülü PCM olarak taşır ve ağ istemeden çalar',()=>{
+  const context={document:{readyState:'loading',addEventListener(){}},localStorage:{getItem:()=>null},console};
+  vm.createContext(context);for(const [,code] of html.matchAll(/<script>([\s\S]*?)<\/script>/g))vm.runInContext(code,context);
+  const bank=context.MBS2GuitarSamples;assert.equal(bank.records.length,48);
+  for(const r of bank.records){assert.equal(r.pcm,fs.readFileSync(path.join(base,r.url)).toString('base64'),r.name);}
+  assert(!/fetch\(/.test(fs.readFileSync(path.join(base,'guitar-samples.js'),'utf8')));
+});
 module.exports=checks;

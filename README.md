@@ -23,6 +23,12 @@ A new guitar workspace for seeing and hearing harmony move across a playable fre
 
 Motion is an independent version. Its source, storage and offline cache do not replace the original studio.
 
+## Fast start · 1.7
+
+The first visit now downloads about 1 MB instead of 11 MB. Guitar sounds are separate small files
+fetched as they are played, and the app still works fully offline once installed. The Pages site is
+staged by `node stage-pages.js site`, which copies only what the app serves.
+
 ## Library and sharing · 1.6
 
 Open **Library** in Motion to save the current progression by name, reopen it, rename or delete it,

@@ -1,6 +1,6 @@
 /* Web Audio API fixture: routing, real PCM, tuning and cancellation; no speakers. */
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),bank=require('../guitar-samples.js');
-function fixture({suspended=false,deferred=false}={}){
+function fixture({suspended=false,deferred=false,lazy=false,fetchImpl=null}={}){
   const sources=[],buffers=[],nodes=[],oscillators=[],timers=[];let ctx=null;
   const param=()=>({value:0,events:[],setValueAtTime(v,t){this.events.push(['set',v,t]);},linearRampToValueAtTime(v,t){this.events.push(['linear',v,t]);},exponentialRampToValueAtTime(v,t){this.events.push(['exp',v,t]);},cancelScheduledValues(t){this.events.push(['cancel',t]);}});
   const node=()=>{const n={connections:[],connect(x){this.connections.push(x);},disconnect(){this.disconnected=true;}};nodes.push(n);return n;};
@@ -14,7 +14,8 @@ function fixture({suspended=false,deferred=false}={}){
     createOscillator(){const o=Object.assign(node(),{type:'sine',frequency:{value:0},starts:[],stops:[],start(t){this.starts.push(t);},stop(t){this.stops.push(t);}});oscillators.push(o);return o;}
     createBufferSource(){const s=Object.assign(node(),{playbackRate:param(),starts:[],stops:[],start(t){this.starts.push(t);},stop(t){this.stops.push(t);}});sources.push(s);return s;}
   }
-  const context={MBS2GuitarSamples:bank,AudioContext:Context,atob:s=>Buffer.from(s,'base64').toString('binary'),console,setInterval:fn=>{timers.push(fn);return timers.length;},clearInterval:id=>{timers[id-1]=null;}};vm.createContext(context);vm.runInContext(fs.readFileSync('audio.js','utf8'),context);
+  const lazyBank={metadata:bank.metadata,records:bank.records.map(r=>({midi:r.midi,name:r.name,sampleRate:r.sampleRate,frames:r.frames,detuneCents:r.detuneCents,url:r.url}))};
+  const context={MBS2GuitarSamples:lazy?lazyBank:bank,fetch:fetchImpl||undefined,AudioContext:Context,atob:s=>Buffer.from(s,'base64').toString('binary'),console,setInterval:fn=>{timers.push(fn);return timers.length;},clearInterval:id=>{timers[id-1]=null;}};vm.createContext(context);vm.runInContext(fs.readFileSync('audio.js','utf8'),context);
   return {audio:context.MBS2Audio,sources,buffers,nodes,oscillators,timers,tick(){timers.forEach(fn=>fn&&fn());},get ctx(){return ctx;}};
 }
 module.exports=async()=>{const checks=[];const check=async(name,fn)=>{await fn();checks.push(name);};
@@ -103,6 +104,51 @@ module.exports=async()=>{const checks=[];const check=async(name,fn)=>{await fn()
     const f=fixture(),chord=()=>({events:[40,47,52,56,59,64].map((midi,i)=>({midi,stringIndex:5-i,fret:i})),beats:8});
     await f.audio.playVoicingRoute(Array.from({length:8},chord),{bpm:100,pattern:'downup'});
     assert(f.sources.length>600);assert(f.sources.every(s=>s.stops.length===1));
+  });
+  const pcmFetch=(log,{status=200,shortBy=0,gate=null}={})=>async url=>{
+    log.push(url);if(gate)await gate;if(status!==200)return {ok:false,status};
+    const raw=fs.readFileSync(url),bytes=raw.subarray(0,raw.length-shortBy);return {ok:true,arrayBuffer:async()=>bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength)};
+  };
+  await check('Ses dizini 48 örneğin gerçek dosyalarını gösterir, küçük kalır ve çevrimdışı önbellekte hepsi vardır',()=>{
+    const index=fs.readFileSync('guitar-samples.js','utf8');assert(index.length<60000);assert(!/[A-Za-z0-9+\/]{400}/.test(index),'index carries no embedded audio');
+    const sw=fs.readFileSync('sw.js','utf8'),assets=vm.runInNewContext('['+sw.match(/ASSETS\.push\(\.\.\.(\[[0-9,]+\])\.map/)[1]+']')[0].map(m=>'./assets/audio/guitar/'+m+'.pcm');
+    assert.equal(bank.records.length,48);
+    for(const r of bank.records){assert.equal(r.url,'assets/audio/guitar/'+r.midi+'.pcm');assert.equal(fs.statSync(r.url).size,r.frames*2);assert(assets.includes('./'+r.url),r.url);}
+    assert.equal(assets.length,48);
+  });
+  await check('Dizindeki örnekler ilk çalmada getirilir, aynı örnek bir kez indirilir ve ses diskteki PCM ile aynıdır',async()=>{
+    const log=[],f=fixture({lazy:true,fetchImpl:pcmFetch(log)});
+    assert(f.audio.metadata.license==='CC0-1.0');await f.audio.playNotes([60,64,67]);
+    assert.equal(log.length,3);assert(log.every(u=>u.startsWith('assets/audio/guitar/')));assert.equal(f.sources.length,3);
+    const sample=bank.records.find(r=>r.midi===60),raw=fs.readFileSync(sample.url),data=f.buffers.find(b=>b.length===sample.frames).getChannelData(0);
+    for(const i of [0,1000,50000,sample.frames-1])assert.equal(data[i],raw.readInt16LE(i*2)/32768);
+    await f.audio.playNotes([60,64,67]);assert.equal(log.length,3);
+  });
+  await check('Aynı örneği isteyen eşzamanlı çalmalar tek indirmeyi paylaşır; Durdur bekleyen çalmayı iptal eder',async()=>{
+    let release;const gate=new Promise(resolve=>{release=resolve;}),log=[],f=fixture({lazy:true,fetchImpl:pcmFetch(log,{gate})});
+    const first=f.audio.playNotes([60]),second=f.audio.playArpeggio([60,60]);
+    await new Promise(resolve=>setImmediate(resolve));assert.equal(log.length,1);
+    f.audio.stop();release();await first;await second;assert.equal(f.sources.length,0);
+    await f.audio.playNotes([60]);assert.equal(f.sources.length,1);assert.equal(log.length,1);
+  });
+  await check('Eksik, kısa ya da ağdan gelmeyen örnek anlaşılır hatayla reddedilir ve sonra yeniden denenebilir',async()=>{
+    for(const [options,pattern] of [[{status:404},/yüklenemedi/],[{shortBy:2},/eksik/]]){
+      const log=[],f=fixture({lazy:true,fetchImpl:pcmFetch(log,options)});
+      await assert.rejects(f.audio.playNotes([60]),pattern);assert.equal(f.sources.length,0);
+      await assert.rejects(f.audio.playNotes([60]),pattern);assert.equal(log.length,2);
+    }
+    const down=fixture({lazy:true,fetchImpl:async()=>{throw new Error('Offline');}});await assert.rejects(down.audio.playNotes([60]),/Offline/);
+  });
+  await check('Rota, ilerleme ve dizi çalmaları ihtiyaç duydukları örnekleri çalmadan önce yükler',async()=>{
+    const log=[],f=fixture({lazy:true,fetchImpl:pcmFetch(log)});
+    await f.audio.playVoicingRoute([{events:[{midi:48,stringIndex:5,fret:3}],beats:2},{events:[{midi:67,stringIndex:1,fret:0}],beats:2}],{bpm:120});
+    assert.equal(log.length,2);await f.audio.playProgression([{midis:[50,54],beats:2}],{bpm:100});assert.equal(log.length,4);
+    await f.audio.playSequence([72,74],{});assert.equal(log.length,6);
+  });
+  await check('Önyükleme ortak gitar aralığını getirir ve başarısız olursa sessizce hata verir',async()=>{
+    const log=[],f=fixture({lazy:true,fetchImpl:pcmFetch(log)});await f.audio.preload([40,76]);
+    const wanted=new Set(Array.from({length:37},(_,i)=>f.audio.samplePlan(40+i).sampleMidi));assert.equal(log.length,wanted.size);
+    const g=fixture({lazy:true,fetchImpl:pcmFetch([],{status:500})});await assert.rejects(g.audio.preload([60,62]),/yüklenemedi/);
   });
   return checks;
 };

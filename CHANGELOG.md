@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.7.0 · 2026-10-22
+
+Fast start.
+
+- **First load drops from about 11.3 MB to about 1.0 MB** (measured in Chromium). The 10.7 MB `guitar-samples.js`, which every visit had to download and parse as one huge string, is now a 10 KB index; the audio is 48 raw PCM files in `assets/audio/guitar/`, bit-for-bit identical to the previous recordings.
+- Samples are fetched when first played (a chord needs only a few files), shared between simultaneous requests, and checked for size. Missing or short files give a clear message and can be retried; Stop cancels a play that is still loading.
+- A common guitar range is warmed up in the background shortly after start, so the first chord rarely waits on the network.
+- Offline use is unchanged: the service worker caches all 48 files with the app (verified with the network cut and a reload). The single-file build embeds the same PCM and never asks the network.
+- GitHub Pages now publishes only what the app serves (90 files, 9.0 MB), staged from the service worker's own list by `stage-pages.js`. Research documents, data dumps, tests and build scripts stay out.
+- Tests: lazy loading (fetch once, concurrent, errors, retry, cancel, route/progression/sequence), index and offline list in step, standalone PCM, and the staging contract. Current count: 261 core/audio checks + 9 voice-route checks.
+- Offline cache advanced to `gb-motion-1.7.0-fast-r1`.
+
 ## 1.6.0 · 2026-10-22
 
 Library and sharing.

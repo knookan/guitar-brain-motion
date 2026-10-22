@@ -14,7 +14,10 @@ html=html.replace('<link rel="stylesheet" href="harmony-diagram.css">',()=>`<sty
 html=html.replace('<link rel="stylesheet" href="atlas.css">',()=>`<style>\n${fs.readFileSync(path.join(base,"atlas.css"),"utf8")}\n</style>`);
 html=html.replace(/^\s*<script defer src="(?:scale-catalog|makam-catalog|makam-tuning|i18n|theory|chord-pool|voicing-catalog|guitar|voicing-engine|chord-diagram|guitar-samples|audio|harmony-engine|harmony-atlas|orbit-engine|orbit-view|harmony-diagram|harmony-map|export|scene|pwa|motion-engine|motion-workspace|app)\.js"><\/script>\s*$/gm,"");
 html=html.replace('<link rel="stylesheet" href="orbit.css">',()=>`<style>\n${fs.readFileSync(path.join(base,"orbit.css"),"utf8")}\n</style>`);
-const scripts=files.map(name=>{const code=fs.readFileSync(path.join(base,name),"utf8");if(code.includes("</script>"))throw new Error(`${name} contains an unescaped script terminator`);return `<script>\n${code}\n</script>`;}).join("\n");
+// The single-file copy cannot fetch the PCM files, so it carries them inline as base64.
+const bank=require("./guitar-samples.js");
+const pcmScript=`<script>\n(typeof window!=="undefined"?window:globalThis).MBS2GuitarPcm=${JSON.stringify(Object.fromEntries(bank.records.map(record=>[record.midi,record.pcm])))};\n</script>`;
+const scripts=pcmScript+"\n"+files.map(name=>{const code=fs.readFileSync(path.join(base,name),"utf8");if(code.includes("</script>"))throw new Error(`${name} contains an unescaped script terminator`);return `<script>\n${code}\n</script>`;}).join("\n");
 html=html.replace('<link rel="stylesheet" href="workspace-layout.css">',()=>`<style>\n${fs.readFileSync(path.join(base,"workspace-layout.css"),"utf8")}\n</style>`);
 html=html.replace('<script defer src="workspace-layout.js"></script>',"");
 const layoutScript=fs.readFileSync(path.join(base,"workspace-layout.js"),"utf8");
