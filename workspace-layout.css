@@ -100,7 +100,7 @@ html:not([data-workspace='project']) #panelContent>.panel-title{display:none}
   .route-list,.orbit-destinations{grid-template-columns:minmax(0,1fr)!important}
   .draft-strings{grid-template-columns:repeat(3,minmax(0,1fr))}
   .atlas-toolbar{display:grid;grid-template-columns:minmax(0,1fr)}
-  .atlas-lenses{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:100%}
+  .atlas-lenses{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));width:100%}
   .atlas-lenses button{padding-inline:5px;font-size:11px}
   .atlas-toolbar summary{font-size:12px}
   .harmony-atlas .atlas-selected{grid-template-columns:minmax(0,1fr) 110px}

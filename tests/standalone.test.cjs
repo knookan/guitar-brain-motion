@@ -1,7 +1,7 @@
 /* Embedded module checks; this does not render a browser or play sound. */
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const base=path.join(__dirname,'..');require('../build-standalone.js');const html=fs.readFileSync(path.join(base,'Guitar_Brain_Motion.html'),'utf8');
-const names=['scale-catalog','makam-catalog','makam-tuning','i18n','theory','chord-pool','voicing-catalog','guitar','voicing-engine','chord-diagram','guitar-samples','audio','harmony-engine','harmony-atlas','orbit-engine','orbit-view','harmony-map','export','scene','pwa','motion-engine','motion-workspace','app'];
+const names=['scale-catalog','makam-catalog','makam-tuning','i18n','theory','chord-pool','voicing-catalog','guitar','voicing-engine','chord-diagram','guitar-samples','audio','harmony-engine','harmony-atlas','orbit-engine','orbit-view','harmony-diagram','harmony-map','export','scene','pwa','motion-engine','motion-workspace','app'];
 const checks=[];function check(name,fn){fn();checks.push(name);}
 check('Dağıtılan Motion HTML tüm kaynak modüllerini, Orbit tasarımını ve gitar kayıtlarını taşır',()=>{
   for(const name of names)assert(html.includes(fs.readFileSync(path.join(base,name+'.js'),'utf8')),name);

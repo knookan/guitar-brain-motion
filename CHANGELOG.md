@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.5.0 · 2026-10-22
+
+Tonal harmony map.
+
+- New **Map** lens in Harmony, now the default: three function regions meeting at a centre point (subdominant, dominant, tonic), the tonic I△ at the junction, and one large circle per region for borrowed, Neapolitan and leading-tone chords.
+- Eight secondary-dominant groups (ii7/X, V7/X and VII°7/X, with a half-diminished ii where it applies) drawn as ring pairs with a bracket and an arrow to the target chord; dashed magenta subV7; I⁶₄ and V7sus4 beside the dominant.
+- Roman numerals with △, ø, ° and ♭ (I△, ii7♭5, ♭VI△, VII°7), or chord names; the choice is remembered.
+- Hover or focus a chord to bring out its arrows; click selects (fretboard and inspector follow), double-click plays; Expand gives the map the full tools area; zoom 1×–2× and a borrowed-scale selector.
+- Works in major and minor keys; scales without classical function show a notice that points to the other lenses.
+- Existing Orbit, Functions, Fifths and PLR lenses are unchanged. Saved projects from earlier releases open on the Map once.
+- Tests: `tests/harmony-diagram.test.cjs` (labels, regions, pair spelling, bounds and overlap in four keys, arrows, rendering contract). Current count: 242 core/audio checks + 9 voice-route checks.
+- Offline cache advanced to `gb-motion-1.5.0-map-r1`.
+
 ## 1.4.0 · 2026-10-18
 
 Practice release.
