@@ -574,6 +574,7 @@
     $("#playMain").addEventListener("click",playCurrent);$("#playArpeggio").addEventListener("click",()=>musicMode()==='motion'?root.GBMotionWorkspace.play(true).catch(error=>toast(error.message)):play(currentMidis(),true));$("#stopPlayback").addEventListener("click",()=>{root.GBMotionWorkspace.stop();Audio.stop();renderScene();root.GBMotionWorkspace.stageInfo();});
     root.addEventListener('mbs-pwa-change',()=>{if(state.mode==='project')renderPanel({keepScroll:true});});
     root.matchMedia?.('(prefers-color-scheme: light)')?.addEventListener?.('change',()=>{if(state.theme==='auto'){applyPreferences();renderScene();}});
+    root.addEventListener('hashchange',()=>{const share=/[#&]m=([A-Za-z0-9_-]+)/.exec(root.location?.hash||'');if(share&&root.GBMotionWorkspace.offerShare(share[1]))setMode('motion');});
     document.addEventListener('keydown',onShortcut);
     // A focused dock button would otherwise also click on Space release, restarting playback.
     document.addEventListener('keyup',event=>{if(event.key===' '&&event.target?.closest?.('#playbackDock'))event.preventDefault();});

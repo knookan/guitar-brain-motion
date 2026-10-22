@@ -123,6 +123,9 @@ Open `http://localhost:8764/`. To create a portable HTML copy, run `node build-s
 node tests/run.cjs
 ```
 
+The browser smoke test needs Playwright and axe-core (`npm install --no-save playwright axe-core`), then
+`python3 -m http.server 8764` and `node tests/browser/smoke.cjs`; it runs in CI on every push.
+
 See [Motion engine and modeling limits](MOTION-ENGINE.md) for interval roles, pitch-aware pairing, bounded route search, physical fret assumptions and playback timing.
 
 The project uses the [MIT license](LICENSE). Bundled samples/fonts retain their licenses; see [third-party notices](THIRD-PARTY-NOTICES.md). All inherited research documents remain available in this source package.

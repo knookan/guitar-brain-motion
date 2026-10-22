@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.9.1 · 2026-10-22
+
+- **Share links pasted into an open tab now work.** Opening a link in a new tab already showed the banner, but pasting it into a tab where the app was running only changes the address after `#`, and nothing happened. The app now notices that change, switches to Motion and offers the progression. Found by the new browser test.
+- **Browser smoke test** (`tests/browser/smoke.cjs`, run by `.github/workflows/browser.yml` on every push): real Chromium checks first-load size and lazy samples, choosing notes, chord diagrams with fingers, the harmony map and every lens, Motion playback with count-in and loop, the library, share links in a new and an open tab, left-handed mirroring, no horizontal scroll on a phone in any workspace, and an axe accessibility scan of every workspace in all four themes.
+- Offline cache advanced to `gb-motion-1.9.1-link-r1`.
+
 ## 1.9.0 · 2026-10-22
 
 For guitarists.
