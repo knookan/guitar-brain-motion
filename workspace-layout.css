@@ -25,8 +25,8 @@
 #appShell .scene-tool{width:31px;height:31px}
 #appShell .scene-stage{min-width:0;min-height:0;overflow:hidden}
 #appShell .scene-bottom{padding:0 14px;gap:12px;display:flex;flex-direction:row;align-items:center;justify-content:space-between}
-#appShell .scene-legend{gap:10px;font-size:9px}
-#appShell .scene-footer{font-size:9px;gap:8px}
+#appShell .scene-legend{gap:10px;font-size:var(--fs-xs)}
+#appShell .scene-footer{font-size:var(--fs-xs);gap:8px}
 #appShell .scene-camera{position:static;left:auto;bottom:auto;transform:none;max-width:none;white-space:nowrap;flex:none;margin:0;height:36px;border-radius:11px;background:#ffffff03;backdrop-filter:none}
 #appShell .scene-camera button{padding:0 8px}
 #appShell .motion-hud{right:16px;top:0;gap:12px}
@@ -100,7 +100,7 @@ html:not([data-workspace='project']) #panelContent>.panel-title{display:none}
   .route-list,.orbit-destinations{grid-template-columns:minmax(0,1fr)!important}
   .draft-strings{grid-template-columns:repeat(3,minmax(0,1fr))}
   .atlas-toolbar{display:grid;grid-template-columns:minmax(0,1fr)}
-  .atlas-lenses{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:100%}
+  .atlas-lenses{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));width:100%}
   .atlas-lenses button{padding-inline:5px;font-size:11px}
   .atlas-toolbar summary{font-size:12px}
   .harmony-atlas .atlas-selected{grid-template-columns:minmax(0,1fr) 110px}
@@ -135,6 +135,8 @@ html:not([data-workspace='project']) #panelContent>.panel-title{display:none}
   .studio-toolbar .mode-tab{padding-inline:8px;font-size:11px;height:30px}
   .layout-controls{justify-content:center}
   .layout-controls button{min-height:28px}
+  /* Phones always stack, so the side-by-side switch has no effect here. */
+  .layout-controls .layout-arrangement{display:none}
   .layout-controls .layout-arrangement,.layout-controls .layout-reset{height:31px;width:31px}
   #appShell .workbench{padding:0 8px 8px}
   #appShell .scene-column{grid-template-rows:43px minmax(0,1fr) 24px}
@@ -145,8 +147,8 @@ html:not([data-workspace='project']) #panelContent>.panel-title{display:none}
   #appShell .scene-tool{width:28px;height:28px}
   #appShell .fretboard-toggle{top:8px;width:28px;height:28px;right:7px!important}
   #appShell .scene-bottom{padding-inline:8px;gap:6px}
-  #appShell .scene-legend{font-size:8px;gap:7px}
-  #appShell .scene-footer{font-size:8px;gap:6px}
+  #appShell .scene-legend{font-size:var(--fs-xs);gap:7px}
+  #appShell .scene-footer{font-size:var(--fs-xs);gap:6px}
   #appShell .scene-footer span:last-child{display:none}
   #appShell .panel-content{padding:16px 12px}
   #appShell .workspace-panel{grid-template-rows:minmax(0,1fr) 52px}
@@ -180,3 +182,4 @@ html[data-theme='light'] .layout-controls button[aria-pressed='true']{background
 html[data-theme='light'] .scene-heading h1{color:#312b40}
 html[data-theme='light'] #appShell .workspace-panel{background:#edeaf2}
 @media print{.studio-toolbar,.workspace-divider,.workspace-panel{display:none!important}#appShell{display:block}#appShell .workbench{display:block}#appShell .scene-column{height:620px;grid-template-rows:48px minmax(0,1fr) 26px}}
+@media(prefers-reduced-motion:reduce){.workspace-divider>span{transition:none}}

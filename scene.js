@@ -285,7 +285,7 @@
     root.addEventListener("pointermove",event=>{
       if(mobile()){pointer=null;suppressClick=false;return;}if(!pointer||event.pointerId!==pointer.id)return;
       if(Math.hypot(event.clientX-pointer.x,event.clientY-pointer.y)>8)pointer.drag=true;
-      if(pointer.drag){event.preventDefault();suppressClick=true;camera.yaw=clamp(camera.yaw+(event.clientX-pointer.lastX)*.22,-28,28);camera.elevation=clamp(camera.elevation-(event.clientY-pointer.lastY)*.18,32,88);request();}
+      if(pointer.drag){event.preventDefault();suppressClick=true;camera.yaw=clamp(camera.yaw+(event.clientX-pointer.lastX)*(root.document?.documentElement?.dataset?.hand==='left'?-.22:.22),-28,28);camera.elevation=clamp(camera.elevation-(event.clientY-pointer.lastY)*.18,32,88);request();}
       pointer.lastX=event.clientX;pointer.lastY=event.clientY;
     },{passive:false});
     const finish=event=>{if(!pointer||event.pointerId!==pointer.id)return;if(pointer.drag)setTimeout(()=>{suppressClick=false;},220);pointer=null;request();};

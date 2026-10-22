@@ -15,9 +15,51 @@ A new guitar workspace for seeing and hearing harmony move across a playable fre
 - Constrain the fret region, hold/raise/lower the upper voice, or lock the first grip.
 - Hear individual voice pairs, complete grips, whole routes and route arpeggios with synchronized string highlights.
 - Use the inherited chord, scale, harmony, makam, tuning and export tools in the redesigned persistent workspace.
+- Save progressions, start from 16 ready-made ones and share any of them as a link; fix the top note of each chord.
+- Map the key as three function regions with secondary dominants, borrowed chords and cadential 6/4 (Harmony → Map).
+- Practise with tempo, Loop, Metronome, Count-in, Block / Strum ↓ / Strum ↓↑ rhythms and a length of 1, 2, 4 or 8 beats per chord. Space plays or stops; ← → change chord.
+- Export the whole route as timed MIDI.
 - English and Turkish, mobile fixed cameras, collapsible fretboard and installable PWA.
 
 Motion is an independent version. Its source, storage and offline cache do not replace the original studio.
+
+## For guitarists · 1.9
+
+**Settings → Guitar** switches to left-handed mode, mirroring the fretboard, the diagrams and the
+exports. Chord diagrams show suggested fingers under the strings; they can be turned off there too.
+
+## Readability · 1.8
+
+No text is smaller than 10 px, all four themes pass an automated contrast sweep, and the light theme
+now covers the whole page. Choose **System** under Settings → Theme to follow your operating system.
+
+## Fast start · 1.7
+
+The first visit now downloads about 1 MB instead of 11 MB. Guitar sounds are separate small files
+fetched as they are played, and the app still works fully offline once installed. The Pages site is
+staged by `node stage-pages.js site`, which copies only what the app serves.
+
+## Library and sharing · 1.6
+
+Open **Library** in Motion to save the current progression by name, reopen it, rename or delete it,
+or start from one of 16 progressions (Pop, Jazz, Blues, Andalusian, Modal) in your key. **Copy link**
+puts the progression in the address; whoever opens it sees a banner and decides whether to load it.
+In a chord's editor, **Top note** fixes the melody note on top of that chord.
+
+## Tonal harmony map · 1.5
+
+**Harmony → Map** lays the key out as three regions: subdominant, dominant and tonic, with the
+tonic at the junction. Large circles hold borrowed, Neapolitan and leading-tone chords; paired
+rings show each secondary ii–V with an arrow to its target. Switch between Roman numerals and
+chord names, hover a chord to see its arrows, click to select and double-click to hear it.
+**Expand** gives the map the whole tools area.
+
+## Practice · 1.4
+
+In Motion, set **Tempo**, choose a **Rhythm**, then turn on **Loop**, **Metronome** or **Count-in**
+and press Play. Give each chord 1, 2, 4 or 8 beats with the selector on its card. Space plays or
+stops when no control has focus, Escape stops, and ← → move through the chords. Arpeggio ignores
+the rhythm setting. The **MIDI** button in Settings' export section writes the whole route timed by those beats.
 
 ## Adjustable studio · 1.3
 
@@ -80,6 +122,9 @@ Open `http://localhost:8764/`. To create a portable HTML copy, run `node build-s
 ```sh
 node tests/run.cjs
 ```
+
+The browser smoke test needs Playwright and axe-core (`npm install --no-save playwright axe-core`), then
+`python3 -m http.server 8764` and `node tests/browser/smoke.cjs`; it runs in CI on every push.
 
 See [Motion engine and modeling limits](MOTION-ENGINE.md) for interval roles, pitch-aware pairing, bounded route search, physical fret assumptions and playback timing.
 

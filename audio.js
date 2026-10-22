@@ -5,7 +5,8 @@
   const bank=root.MBS2GuitarSamples||(typeof require!=='undefined'?require('./guitar-samples.js'):null);
   let context=null,master=null,room=null,wet=null,generation=0;
   let timeline=[];
-  const buffers=new Map(),voices=new Set(),MAX_VOICES=48;
+  let loopTimer=0;
+  const buffers=new Map(),voices=new Set(),clicks=new Set(),fetched=new Map(),loading=new Map(),MAX_VOICES=96;
   const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
   const clean=midis=>[...new Set(midis.map(Number).filter(n=>Number.isFinite(n)&&n>=12&&n<=108))].sort((a,b)=>a-b);
   function selectSample(midi){
@@ -13,6 +14,29 @@
     return bank.records.reduce((best,s)=>Math.abs(s.midi-midi)<Math.abs(best.midi-midi)?s:best);
   }
   function samplePlan(midi){const sample=selectSample(Number(midi)),sourceDetuneCents=Number(sample.detuneCents)||0;return {sampleMidi:sample.midi,sourceDetuneCents,playbackRate:Math.pow(2,(Number(midi)-sample.midi)/12-sourceDetuneCents/1200),duration:sample.frames/sample.sampleRate};}
+  // Samples without inline PCM are fetched on first use, then kept for the session.
+  function loadSample(sample){
+    if(sample.pcm||fetched.has(sample.midi))return Promise.resolve();
+    if(!loading.has(sample.midi)){
+      const promise=Promise.resolve().then(()=>root.fetch(sample.url)).then(response=>{
+        if(!response.ok)throw new Error('Gitar örneği yüklenemedi: '+sample.name);return response.arrayBuffer();
+      }).then(bytes=>{
+        if(bytes.byteLength!==sample.frames*2)throw new Error('Gitar örneği eksik: '+sample.name);
+        fetched.set(sample.midi,bytes);
+      }).finally(()=>loading.delete(sample.midi));
+      loading.set(sample.midi,promise);
+    }
+    return loading.get(sample.midi);
+  }
+  function ensureSamples(midis){
+    const wanted=new Map();for(const midi of midis){const n=Number(midi);if(Number.isFinite(n)){const sample=selectSample(n);wanted.set(sample.midi,sample);}}
+    return Promise.all([...wanted.values()].map(loadSample));
+  }
+  // Warm the common guitar range after startup so the first chord does not wait on the network.
+  function preload(range=[40,76]){
+    const midis=[];for(let m=range[0];m<=range[1];m++)midis.push(m);
+    return ensureSamples(midis);
+  }
   function roomImpulse(ctx){
     const length=Math.round(ctx.sampleRate*.32),impulse=ctx.createBuffer(2,length,ctx.sampleRate);
     let seed=971;for(let channel=0;channel<2;channel++){const data=impulse.getChannelData(channel);for(let i=0;i<length;i++){seed=(Math.imul(seed,1664525)+1013904223)>>>0;data[i]=((seed/4294967296)*2-1)*Math.pow(1-i/length,3)*.12;}}
@@ -30,20 +54,35 @@
   }
   function getBuffer(sample){
     if(buffers.has(sample.midi))return buffers.get(sample.midi);
-    const raw=root.atob(sample.pcm),buffer=context.createBuffer(1,sample.frames,sample.sampleRate),data=buffer.getChannelData(0);
-    for(let i=0;i<sample.frames;i++){let value=raw.charCodeAt(i*2)|(raw.charCodeAt(i*2+1)<<8);if(value>32767)value-=65536;data[i]=value/32768;}
+    const buffer=context.createBuffer(1,sample.frames,sample.sampleRate),data=buffer.getChannelData(0);
+    if(sample.pcm){
+      const raw=root.atob(sample.pcm);
+      for(let i=0;i<sample.frames;i++){let value=raw.charCodeAt(i*2)|(raw.charCodeAt(i*2+1)<<8);if(value>32767)value-=65536;data[i]=value/32768;}
+    }else if(fetched.has(sample.midi)){
+      const view=new DataView(fetched.get(sample.midi));for(let i=0;i<sample.frames;i++)data[i]=view.getInt16(i*2,true)/32768;
+    }else throw new Error('Gitar örneği henüz yüklenmedi: '+sample.name);
     buffers.set(sample.midi,buffer);return buffer;
   }
   function releaseVoice(voice,at,fade=.04){
     try{voice.gain.gain.cancelScheduledValues(at);voice.gain.gain.setValueAtTime(voice.level,at);voice.gain.gain.linearRampToValueAtTime(0,at+fade);voice.source.stop(at+fade+.005);}catch(_){}
   }
   function stop(){
-    generation++;timeline=[];const now=context?.currentTime||0;
+    generation++;timeline=[];if(loopTimer){root.clearInterval(loopTimer);loopTimer=0;}const now=context?.currentTime||0;
+    for(const osc of clicks){try{osc.stop(now);}catch(_){}}clicks.clear();
     for(const voice of voices){
       if(voice.when>now){try{voice.source.stop(now);}catch(_){}}
       else releaseVoice(voice,now);
     }
     voices.clear();
+  }
+  // Synthetic metronome click: accent is the first beat of a bar or pass.
+  function click(when,accent=false){
+    const ctx=context,osc=ctx.createOscillator(),gain=ctx.createGain(),level=accent?.34:.2;
+    osc.type='sine';osc.frequency.value=accent?1560:1040;
+    gain.gain.setValueAtTime(0,when);gain.gain.linearRampToValueAtTime(level,when+.002);gain.gain.exponentialRampToValueAtTime(.001,when+.07);
+    osc.connect(gain);gain.connect(master);clicks.add(osc);
+    osc.onended=()=>{clicks.delete(osc);for(const node of [osc,gain])try{node.disconnect();}catch(_){}};
+    osc.start(when);osc.stop(when+.08);
   }
   function strike(midi,when,{duration=3.8,velocity=.75,pan=0,volume=1,metadata={}}={}){
     const ctx=context,sample=selectSample(midi),plan=samplePlan(midi),source=ctx.createBufferSource(),gain=ctx.createGain(),filter=ctx.createBiquadFilter();
@@ -54,7 +93,9 @@
     source.connect(filter);filter.connect(gain);
     let panner=null;if(ctx.createStereoPanner){panner=ctx.createStereoPanner();panner.pan.value=pan;gain.connect(panner);panner.connect(master);panner.connect(room);}else{gain.connect(master);gain.connect(room);}
     const voice={source,gain,when,level};
-    if(voices.size>=MAX_VOICES){const oldest=voices.values().next().value;releaseVoice(oldest,ctx.currentTime);voices.delete(oldest);}
+    // Only voices that already sound count toward the cap; notes scheduled ahead must not evict them.
+    const sounding=[...voices].filter(v=>v.when<=ctx.currentTime+.05);
+    if(sounding.length>=MAX_VOICES){releaseVoice(sounding[0],ctx.currentTime);voices.delete(sounding[0]);}
     voices.add(voice);source.onended=()=>{voices.delete(voice);for(const node of [source,filter,gain,panner])try{node?.disconnect();}catch(_){}};
     source.start(when);source.stop(end+.01);timeline.push({midi,start:when,end,...metadata});return voice;
   }
@@ -65,38 +106,69 @@
     const time=stamp?.performanceTime>0&&root.performance?Math.min(context.currentTime,stamp.contextTime+(root.performance.now()-stamp.performanceTime)/1000):Math.max(0,context.currentTime-(context.outputLatency||0));
     return {events:timeline,time,token:generation};
   }
-  async function begin(){
+  async function begin(midis=[]){
     stop();const token=generation,ctx=ensure();if(ctx.state==='suspended')await ctx.resume();
+    await ensureSamples(midis);
     return {ctx,token,valid:token===generation};
   }
   async function playNotes(midis,{duration=3.8,velocity=.78,strumMs=11}={}){
-    const notes=clean(midis),{ctx,token,valid}=await begin();if(!valid||token!==generation||!notes.length)return token;
+    const notes=clean(midis),{ctx,token,valid}=await begin(notes);if(!valid||token!==generation||!notes.length)return token;
     const now=ctx.currentTime+.018,volume=1/Math.sqrt(Math.max(1,notes.length/2));
     notes.forEach((m,i)=>strike(m,now+i*clamp(strumMs,0,30)/1000,{duration,velocity:velocity*(1-i*.018),pan:notes.length===1?0:(i/(notes.length-1)-.5)*.28,volume}));return token;
   }
   async function playArpeggio(midis,{bpm=92,direction='up',step=.28,noteDuration=2.8}={}){
     let notes=clean(midis);if(direction==='down')notes.reverse();else if(direction==='up-down')notes=[...notes,...notes.slice(1,-1).reverse()];
     const spacing=Number.isFinite(bpm)?30/clamp(bpm,30,240):step;
-    const {ctx,token,valid}=await begin();if(!valid||token!==generation||!notes.length)return 0;
+    const {ctx,token,valid}=await begin(notes);if(!valid||token!==generation||!notes.length)return 0;
     const now=ctx.currentTime+.018;notes.forEach((m,i)=>strike(m,now+i*spacing,{duration:noteDuration,velocity:.74+(i%3)*.025,pan:(i%2?1:-1)*.045,volume:.78}));
     return notes.length*spacing;
   }
   async function playProgression(chords,{arpeggio=false,bpm=88,repeat=false}={}){
-    const {ctx,token,valid}=await begin();if(!valid||token!==generation)return 0;const beat=60/clamp(bpm,30,240),now=ctx.currentTime+.018;let offset=0;
+    const {ctx,token,valid}=await begin(chords.flatMap(item=>clean(item.midis||[])));if(!valid||token!==generation)return 0;const beat=60/clamp(bpm,30,240),now=ctx.currentTime+.018;let offset=0;
     for(let pass=0;pass<(repeat?2:1);pass++)for(const item of chords){const notes=clean(item.midis||[]),seconds=clamp(Number(item.beats)||4,1,8)*beat;notes.forEach((m,i)=>strike(m,now+offset+i*(arpeggio?beat*.5:.011),{duration:Math.max(.3,seconds*.92),volume:1/Math.sqrt(Math.max(1,notes.length/2))}));offset+=seconds;}
     return offset;
   }
   async function playSequence(midis,{spacing=.7,noteDuration=.55}={}){
-    const notes=midis.map(Number).filter(n=>Number.isFinite(n)&&n>=12&&n<=108),{ctx,token,valid}=await begin();if(!valid||token!==generation||!notes.length)return 0;
+    const notes=midis.map(Number).filter(n=>Number.isFinite(n)&&n>=12&&n<=108),{ctx,token,valid}=await begin(notes);if(!valid||token!==generation||!notes.length)return 0;
     const now=ctx.currentTime+.018;notes.forEach((m,i)=>strike(m,now+i*clamp(spacing,.1,2),{duration:noteDuration,velocity:.8,volume:.78}));return notes.length*spacing;
   }
-  async function playVoicingRoute(nodes,{bpm=92,arpeggio=false}={}){
-    const {ctx,token,valid}=await begin();if(!valid||token!==generation)return 0;
-    const beat=60/clamp(bpm,30,240),start=ctx.currentTime+.025;let offset=0;
-    nodes.forEach((node,stepIndex)=>{
-      const notes=(node.events||[]).filter(n=>Number.isFinite(n.midi)&&n.midi>=12&&n.midi<=108),seconds=(node.beats||4)*beat;
-      notes.forEach((note,i)=>{const delay=arpeggio?i*seconds/Math.max(notes.length,1)*.75:i*.012;strike(note.midi,start+offset+delay,{duration:Math.max(.1,seconds*.94-delay),velocity:.76,volume:1/Math.sqrt(Math.max(1,notes.length/2)),pan:(note.stringIndex/Math.max(1,notes.length-1)-.5)*.2,metadata:{stepIndex,position:{stringIndex:note.stringIndex,fret:note.fret,midi:note.midi},stepStart:start+offset,stepEnd:start+offset+seconds}});});offset+=seconds;
-    });return offset;
+  async function playVoicingRoute(nodes,{bpm=92,arpeggio=false,loop=false,metronome=false,countIn=false,pattern='block'}={}){
+    const {ctx,token,valid}=await begin(nodes.flatMap(node=>(node.events||[]).map(e=>e.midi)));if(!valid||token!==generation)return 0;
+    const beat=60/clamp(bpm,30,240),lead=countIn?4*beat:0,start=ctx.currentTime+.025+lead,beatsOf=node=>Number(node.beats)||4;
+    const passLength=nodes.reduce((total,node)=>total+beatsOf(node)*beat,0);
+    if(!(passLength>0))return 0;
+    if(countIn)for(let b=0;b<4;b++)click(start-lead+b*beat,b===0);
+    function schedulePass(passStart){
+      let offset=0;
+      nodes.forEach((node,stepIndex)=>{
+        const notes=(node.events||[]).filter(n=>Number.isFinite(n.midi)&&n.midi>=12&&n.midi<=108),seconds=beatsOf(node)*beat;
+        const volume=1/Math.sqrt(Math.max(1,notes.length/2)),hit=(note,at,duration,velocity,pan)=>strike(note.midi,at,{duration:Math.max(.1,duration),velocity,volume,pan,metadata:{stepIndex,position:{stringIndex:note.stringIndex,fret:note.fret,midi:note.midi},stepStart:passStart+offset,stepEnd:passStart+offset+seconds}});
+        const panOf=note=>(note.stringIndex/Math.max(1,notes.length-1)-.5)*.2;
+        if(!arpeggio&&(pattern==='strum'||pattern==='downup')){
+          // Down-strokes sweep low to high; up-strokes reverse and sit softer. Every stroke stays inside its chord.
+          const step=pattern==='downup'?beat/2:beat,count=Math.max(1,Math.round(seconds/step));
+          for(let h=0;h<count;h++){
+            const up=pattern==='downup'&&h%2===1,ordered=up?[...notes].reverse():notes,room=seconds-h*step;
+            ordered.forEach((note,i)=>hit(note,passStart+offset+h*step+i*.012,Math.min(step*1.3,room*.94)-i*.012,up?.6:h===0?.82:.72,panOf(note)));
+          }
+        }else notes.forEach((note,i)=>{const delay=arpeggio?i*seconds/Math.max(notes.length,1)*.75:i*.012;hit(note,passStart+offset+delay,seconds*.94-delay,.76,panOf(note));});
+        offset+=seconds;
+      });
+      if(metronome)for(let b=0,beats=Math.round(passLength/beat);b<beats;b++)click(passStart+b*beat,b%4===0);
+      return offset;
+    }
+    const length=schedulePass(start);
+    if(loop){
+      // Look-ahead scheduling: one pass at a time keeps scheduled voices under the voice cap.
+      let next=start+passLength;
+      loopTimer=root.setInterval(()=>{
+        if(token!==generation){root.clearInterval(loopTimer);loopTimer=0;return;}
+        const now=ctx.currentTime;timeline=timeline.filter(event=>event.end>now-3);
+        if(next<now)next+=Math.ceil((now-next)/passLength)*passLength;
+        while(next-now<.6){schedulePass(next);next+=passLength;}
+      },120);
+    }
+    return length;
   }
-  const API=Object.freeze({playNotes,playArpeggio,playSequence,playProgression,playVoicingRoute,stop,getPlayback,samplePlan,metadata:bank?.metadata});root.MBS2Audio=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+  const API=Object.freeze({preload,ensureSamples,playNotes,playArpeggio,playSequence,playProgression,playVoicingRoute,stop,getPlayback,samplePlan,metadata:bank?.metadata});root.MBS2Audio=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);

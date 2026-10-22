@@ -1,10 +1,12 @@
 /* Each worker retains one complete offline build, including guitar samples. */
-const CACHE='gb-motion-1.3.0-layout-r5';
+const CACHE='gb-motion-1.9.1-link-r1';
 // The host redirects /index.html to /. Caching that redirected Response breaks
 // Chrome navigation requests, whose redirect mode is manual (ERR_FAILED).
-const ASSETS=['./','./motion.css','./motion-engine.js','./motion-workspace.js','./styles.css','./scale-catalog.js','./makam-catalog.js','./makam-tuning.js','./i18n.js','./theory.js','./chord-pool.js','./voicing-catalog.js','./guitar.js','./voicing-engine.js','./chord-diagram.js','./guitar-samples.js','./audio.js','./harmony-engine.js','./harmony-atlas.js','./harmony-map.js','./export.js','./scene.js','./pwa.js','./app.js','./manifest.webmanifest','./assets/icons/icon-192.png','./assets/icons/icon-512.png','./assets/icons/maskable-512.png','./assets/icons/apple-touch-icon.png','./assets/fonts/Manrope.ttf','./assets/fonts/SpaceGrotesk.ttf','./Makam_Arastirmasi.html'];
-ASSETS.push('./atlas.css','./orbit.css','./orbit-engine.js','./orbit-view.js');
-ASSETS.push('./workspace-layout.css','./workspace-layout.js');
+const ASSETS=['./','./motion.css','./motion-engine.js','./motion-workspace.js','./styles.css','./scale-catalog.js','./makam-catalog.js','./makam-tuning.js','./i18n.js','./theory.js','./chord-pool.js','./voicing-catalog.js','./guitar.js','./voicing-engine.js','./chord-diagram.js','./guitar-samples.js','./audio.js','./harmony-engine.js','./harmony-atlas.js','./harmony-diagram.js','./harmony-map.js','./export.js','./scene.js','./pwa.js','./app.js','./manifest.webmanifest','./assets/icons/icon-192.png','./assets/icons/icon-512.png','./assets/icons/maskable-512.png','./assets/icons/apple-touch-icon.png','./assets/fonts/Manrope.ttf','./assets/fonts/SpaceGrotesk.ttf','./Makam_Arastirmasi.html'];
+ASSETS.push('./harmony-diagram.css','./atlas.css','./orbit.css','./orbit-engine.js','./orbit-view.js');
+ASSETS.push('./workspace-layout.css','./workspace-layout.js','./theme-light.css');
+// One raw PCM file per recorded note; guitar-samples.js is the index and a test keeps this list in step with it.
+ASSETS.push(...[31,32,33,34,35,36,37,38,39,40,41,43,45,47,48,50,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84].map(midi=>'./assets/audio/guitar/'+midi+'.pcm'));
 const HOME=new URL('./',self.registration.scope).href;
 function navigationResponse(response){
   if(!response.redirected)return response;

@@ -1,0 +1,30 @@
+name: Browser
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright and axe-core
+        run: |
+          npm install --no-save --no-package-lock playwright@1.48.2 axe-core@4.10.2
+          npx playwright install --with-deps chromium
+      - name: Serve the app
+        run: |
+          python3 -m http.server 8764 >/dev/null 2>&1 &
+          for i in $(seq 1 20); do curl -sf http://localhost:8764/ >/dev/null && break; sleep 1; done
+      - name: Run browser smoke test
+        run: node tests/browser/smoke.cjs http://localhost:8764/

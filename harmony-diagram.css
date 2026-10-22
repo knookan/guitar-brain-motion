@@ -1,0 +1,44 @@
+/* Tonal harmony diagram. Every colour is a token so the light theme only overrides values. */
+.hmap-scroll{overflow:auto;border-radius:16px;background:var(--hm-bg);border:1px solid var(--hm-line-soft);scrollbar-width:thin}
+.hmap{--hm-bg:#1b1b1e;--hm-line:#7a7882;--hm-line-soft:#ffffff12;--hm-cluster:#56545a;--hm-ring:#6d6b75;--hm-half:#5a585f;--hm-centre:#3a4863;--hm-centre-line:#6b82ad;
+  --hm-text:#f3f1f6;--hm-muted:#8f8c98;--hm-dom:#3ea2ff;--hm-color:#8fd6c9;--hm-sub:#e24ee3;--hm-arrow:#94603d;--hm-active:#d9f87b;
+  position:relative;width:calc(100% * var(--hm-zoom,1));min-width:calc(720px * var(--hm-zoom,1));container-type:inline-size;color:var(--hm-text);font-family:var(--hm-font,inherit)}
+.hm-stage{position:relative;width:100%;aspect-ratio:1000/660}
+.hm-svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hm-regions line{stroke:var(--hm-line);stroke-width:1.3}
+.hm-icon{color:#8b8993}
+.hm-cluster{fill:var(--hm-cluster);opacity:.92}
+.hm-centre{fill:var(--hm-centre);stroke:var(--hm-centre-line);stroke-width:1.6;opacity:.92}
+.hm-ring{fill:none;stroke:var(--hm-ring);stroke-width:1.4}
+.hm-half{fill:var(--hm-half)}
+.hm-link{stroke:var(--hm-ring);stroke-width:1.3}
+.hm-bracket{fill:none;stroke:var(--hm-arrow);stroke-width:2.1;stroke-linejoin:round}
+.hm-arrow{fill:none;stroke:var(--hm-arrow);stroke-width:2.2;stroke-linecap:round;transition:opacity .2s,stroke-width .2s}
+.hm-arrow-prep{stroke-dasharray:7 6;stroke-width:1.8}
+.hm-arrow-return{stroke-dasharray:1.5 6;stroke-width:2.2}
+.hm-arrow-sub{stroke:var(--hm-sub);stroke-dasharray:7 6;stroke-width:1.9}
+.hm-head{fill:var(--hm-arrow)}.hm-head-sub{fill:var(--hm-sub)}
+.hm-arrow.hm-soft{opacity:0}
+.hmap[data-hl] .hm-arrow:not(.on){opacity:.12}
+.hmap[data-hl] .hm-arrow.hm-soft:not(.on){opacity:0}
+.hmap .hm-arrow.on,.hmap .hm-arrow.hm-soft.on{stroke-width:3.2;opacity:1}
+.hm-node{position:absolute;transform:translate(-50%,-50%);margin:0;z-index:1}
+.hm-label{display:block;border:0;background:transparent;color:var(--hm-text);font:inherit;font-size:max(10px,1.5cqw);line-height:1.1;padding:3px 5px;border-radius:8px;white-space:nowrap;cursor:pointer;letter-spacing:-.01em;transition:background .15s,box-shadow .15s}
+.hm-label:hover,.hm-label:focus-visible{background:#ffffff14;outline:none}
+.hm-label:focus-visible{box-shadow:0 0 0 2px var(--hm-active)}
+.hm-node.active .hm-label{background:#d9f87b1c;box-shadow:0 0 0 1.5px var(--hm-active)}
+.hm-main .hm-label{color:var(--hm-text)}.hm-dom .hm-label{color:var(--hm-dom)}.hm-color .hm-label{color:var(--hm-color)}.hm-sub .hm-label{color:var(--hm-sub)}
+.hm-small .hm-label{font-size:max(10px,1.05cqw);padding:1px 3px}
+.hm-satellite .hm-label{font-size:max(10px,1.2cqw)}
+.hm-region{position:absolute;transform:translateY(-50%);font-size:max(10px,1.05cqw);letter-spacing:.1em;text-transform:uppercase;color:var(--hm-muted);pointer-events:none}
+.hm-region-D{transform:translate(-100%,-50%)}
+.hm-notice{margin:0;padding:22px;color:var(--hm-muted,#8f8c98);font-size:13px;line-height:1.5}
+.hmap-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.hmap-bar button{border:1px solid #ffffff14;background:transparent;color:inherit;border-radius:999px;padding:0 12px;min-height:28px;font-size:11px}
+.hmap-bar button.active,.hmap-bar button[aria-pressed='true']{border-color:#d9f87b66;color:#d9f87b;background:#d9f87b0c}
+.hmap-bar label{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#8f8c98}
+.hmap-bar select{border:1px solid #ffffff14;background:#ffffff06;color:inherit;border-radius:8px;padding:4px 6px;font-size:11px;min-height:28px}
+html[data-theme='light'] .hmap{--hm-bg:#f3f1f7;--hm-line:#9a96a6;--hm-line-soft:#4f46601f;--hm-cluster:#cfcbd8;--hm-ring:#9a96a6;--hm-half:#c4c0cf;--hm-centre:#cfd9ee;--hm-centre-line:#6b82ad;--hm-text:#25202f;--hm-muted:#6d6878;--hm-dom:#0757ad;--hm-color:#126a5a;--hm-sub:#a0128f;--hm-arrow:#8a5530;--hm-active:#456220}
+html[data-theme='light'] .hm-label:hover{background:#4f46601a}
+html[data-theme='light'] .hmap-bar button.active,html[data-theme='light'] .hmap-bar button[aria-pressed='true']{color:#456220;border-color:#718752}
+@media(prefers-reduced-motion:reduce){.hm-arrow,.hm-label{transition:none}}
