@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.9.0 · 2026-10-22
+
+For guitarists.
+
+- **Left-handed mode** (Settings → Guitar): the fretboard is mirrored with the nut on the right and every label kept readable, the camera drag follows the mirror, chord diagrams reverse their strings, and SVG, PNG and PDF exports are mirrored too. The choice is remembered.
+- **Suggested fingers** on every chord diagram (Chord, Scale, Harmony inspector and the Motion grip), shown under the strings: index on the lowest fret, higher fingers for higher frets, one finger per note up to four notes, and a barre only where the shape needs one. Classic shapes come out as taught (C 3-2-1, Am 2-3-1 over the strings, E 2-3-1, F barre 1 · 3 · 4 · 2 · 1 · 1). Turn them off in Settings.
+- Fingers are a suggestion from the hand model, not a promise about any one player's hand; shapes with no playable fingering show none.
+- Diagram options are passed explicitly to every diagram rather than held as shared state.
+- Tests: `tests/hand.test.cjs` (classic fingerings, invariants over 1890 generated voicings, diagram fingers and mirroring in 4–8 string tunings, mirrored export, saved preferences, mirror CSS contract). Current count: 274 core/audio checks + 9 voice-route checks.
+- Offline cache advanced to `gb-motion-1.9.0-hand-r1`.
+
 ## 1.8.0 · 2026-10-22
 
 Readability, themes and accessibility.

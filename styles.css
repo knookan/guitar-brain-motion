@@ -408,3 +408,8 @@ button:disabled{opacity:.38;cursor:default}
 /* Browsers shrink <small> to 83%; never let that take text below the 10px floor. */
 small{font-size:max(var(--fs-xs),.8333em)}
 .sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.diagram-finger{fill:var(--muted,#9fb0c6);font:600 11px var(--font-ui,Manrope),sans-serif;text-anchor:middle}
+/* Left-handed: the fretboard is mirrored; text stays readable by flipping each label back. */
+html[data-hand='left'] :is(.guitar-canvas,.guitar-scene){scale:-1 1}
+html[data-hand='left'] .guitar-scene text{scale:-1 1;transform-box:fill-box;transform-origin:center}
+.settings-note{margin:10px 0 0;font-size:11px;line-height:1.5;color:var(--muted)}

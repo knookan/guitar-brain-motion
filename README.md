@@ -23,6 +23,11 @@ A new guitar workspace for seeing and hearing harmony move across a playable fre
 
 Motion is an independent version. Its source, storage and offline cache do not replace the original studio.
 
+## For guitarists · 1.9
+
+**Settings → Guitar** switches to left-handed mode, mirroring the fretboard, the diagrams and the
+exports. Chord diagrams show suggested fingers under the strings; they can be turned off there too.
+
 ## Readability · 1.8
 
 No text is smaller than 10 px, all four themes pass an automated contrast sweep, and the light theme

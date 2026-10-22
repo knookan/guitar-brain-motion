@@ -10,7 +10,7 @@
   function fingering(frets,capo=0,{scaleLength=648,maxReach=112,maxSpan=4}={}){
     if(!Array.isArray(frets)||frets.length<4||frets.length>8||frets.some(f=>!Number.isInteger(f)||f< -1||f>24||f>=0&&f<capo))return {playable:false,reason:"geometry"};
     const pressed=frets.flatMap((f,s)=>f>capo?[{f,s}]:[]);
-    if(!pressed.length)return {playable:true,fingerCount:0,barres:[],span:0,reach:0,effort:0};
+    if(!pressed.length)return {playable:true,fingerCount:0,barres:[],span:0,reach:0,effort:0,fingers:Array(frets.length).fill(0)};
     const min=Math.min(...pressed.map(p=>p.f)),max=Math.max(...pressed.map(p=>p.f));
     if(max-min>maxSpan)return {playable:false,reason:"span"};
     let reach=0;
@@ -37,9 +37,23 @@
       memo.set(key,best);return best;
     }
     const result=cover(0,0);if(!result||result.actions.length>4)return {playable:false,reason:"fingers"};
+    // Suggested fingers: index on the lowest fret of the position, each action on a higher finger as the frets rise;
+    // actions on the same fret go to the lower-pitched string first. When the preferred spread runs out, fingers are packed from 1.
+    // Up to four pressed notes get one finger each (a two-string mini barre is not what is taught); wider shapes keep their barres.
+    const single=p=>({fret:p.f,fromString:p.s,toString:p.s});
+    let handActions=pressed.length<=4?pressed.map(single):result.actions;
+    if(pressed.length>4){
+      // Keep the index finger's barre on the lowest fret; split any other barre when the four fingers still suffice.
+      const split=result.actions.flatMap(action=>action.barre&&action.fret!==min?pressed.filter(p=>p.f===action.fret&&p.s>=action.fromString&&p.s<=action.toString).map(single):[action]);
+      if(split.length<=4)handActions=split;
+    }
+    const fingers=Array(frets.length).fill(0),ordered=[...handActions].sort((a,b)=>a.fret-b.fret||a.fromString-b.fromString),base=min<=capo+4?capo+1:min;
+    let previous=0,assigned=ordered.map(action=>previous=Math.max(previous+1,Math.max(1,Math.min(4,action.fret-base+1))));
+    if(assigned.some(finger=>finger>4))assigned=ordered.map((_,index)=>index+1);
+    ordered.forEach((action,index)=>{for(let s=action.fromString;s<=action.toString;s++)if(frets[s]===action.fret)fingers[s]=assigned[index];});
     const barres=result.actions.filter(a=>a.barre).map(a=>({fret:a.fret,fromString:a.fromString,toString:a.toString}));
     const effort=result.actions.length*2+(max-min)*1.4+reach/22+barres.reduce((sum,b)=>sum+1.5+(b.toString-b.fromString)*.65,0);
-    return {playable:true,fingerCount:result.actions.length,barres,span:max-min,reach,effort};
+    return {playable:true,fingerCount:result.actions.length,barres,span:max-min,reach,effort,fingers};
   }
   function policyFor(chord,{completeness="practical",allowRootless=false}={}){
     const tones=chord.notes||[],allowed=[...new Set(chord.pitchClasses||[])],required=new Set(allowed),groups=[];
