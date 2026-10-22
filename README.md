@@ -15,12 +15,20 @@ A new guitar workspace for seeing and hearing harmony move across a playable fre
 - Constrain the fret region, hold/raise/lower the upper voice, or lock the first grip.
 - Hear individual voice pairs, complete grips, whole routes and route arpeggios with synchronized string highlights.
 - Use the inherited chord, scale, harmony, makam, tuning and export tools in the redesigned persistent workspace.
+- Save progressions, start from 16 ready-made ones and share any of them as a link; fix the top note of each chord.
 - Map the key as three function regions with secondary dominants, borrowed chords and cadential 6/4 (Harmony → Map).
 - Practise with tempo, Loop, Metronome, Count-in, Block / Strum ↓ / Strum ↓↑ rhythms and a length of 1, 2, 4 or 8 beats per chord. Space plays or stops; ← → change chord.
 - Export the whole route as timed MIDI.
 - English and Turkish, mobile fixed cameras, collapsible fretboard and installable PWA.
 
 Motion is an independent version. Its source, storage and offline cache do not replace the original studio.
+
+## Library and sharing · 1.6
+
+Open **Library** in Motion to save the current progression by name, reopen it, rename or delete it,
+or start from one of 16 progressions (Pop, Jazz, Blues, Andalusian, Modal) in your key. **Copy link**
+puts the progression in the address; whoever opens it sees a banner and decides whether to load it.
+In a chord's editor, **Top note** fixes the melody note on top of that chord.
 
 ## Tonal harmony map · 1.5
 

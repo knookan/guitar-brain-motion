@@ -573,6 +573,7 @@
   function init(){
     try{
       root.GBMotionWorkspace.init(()=>{renderPanel();renderScene();});
+      {const share=/[#&]m=([A-Za-z0-9_-]+)/.exec(root.location?.hash||'');if(share&&root.GBMotionWorkspace.offerShare(share[1])){state.mode='motion';state.lastMusicMode='motion';}}
       applyPreferences();document.documentElement.style.setProperty("--cyan",state.color||defaults.color);activeChord=chordFromState();ensureVoicing(activeChord);
       if(musicMode()==="harmony")resetHarmonyChord();
       scene=root.MBS2Scene.create($("#guitarScene"),(stringIndex,fret)=>togglePosition(stringIndex,fret),{canvas:$("#guitarCanvas"),stage:$("#sceneStage"),initialCamera:{preset:state.cameraView,zoom:state.cameraZoom},onCameraChange:cameraChanged});

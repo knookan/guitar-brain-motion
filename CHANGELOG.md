@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.6.0 · 2026-10-22
+
+Library and sharing.
+
+- **Library** in Motion: name and save the current progression, then open, rename or delete it later. Chords, beats, top notes, rhythm, fret region and route options are kept. Up to 50 saved progressions; damaged or incomplete entries are dropped on load.
+- **16 ready-made progressions** in five groups (Pop, Jazz, Blues, Andalusian, Modal), built in the key you have selected and spelled correctly for it (F♯: F♯ – C♯ – D♯m – B).
+- **Share link**: Copy link (or the system share sheet) writes the whole progression into the address after `#m=`. A visitor sees a banner, "Shared progression · Dm7 → G7 → Cmaj7", and chooses Open or Dismiss; nothing replaces their work until they open it. Custom chords that cannot be rebuilt from theory are refused instead of shared. Links are validated field by field: wrong version, too many or unknown chords, oversized or malformed data are ignored.
+- **Top note per chord**: choose the exact melody note for any chord in its editor. Routes keep that note on top; the card shows it (↑D4), and Reset constraints clears it. When no playable route can reach the notes you chose, you are told so.
+- Tests: `tests/library.test.cjs` covers presets in five keys, library persistence and clean-up, link round trip and rejection cases, the banner flow and top-note routing. Current count: 250 core/audio checks + 9 voice-route checks.
+- Offline cache advanced to `gb-motion-1.6.0-library-r1`.
+
 ## 1.5.0 · 2026-10-22
 
 Tonal harmony map.
